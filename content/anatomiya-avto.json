@@ -1,0 +1,52 @@
+{
+  "_source": {
+    "list_entry": "Анатомия Авто | https://2gis.ru/tyumen/geo/70000001030596494 | Сайта нету, часы работы:Пн-Сб 9:00-20:00 | Воскресенье Выходной",
+    "has_website": false,
+    "status": "Заполнено только по local_businesses.md; карточка 2ГИС не прочитана."
+  },
+
+  "slug": "anatomiya-avto",
+  "title": "Анатомия Авто — автосервис в Тюмени (демо-концепт)",
+  "description": "Демо-концепт сайта автосервиса Анатомия Авто, Тюмень: режим работы и ссылка на карточку в 2ГИС. Не официальный сайт.",
+
+  "name": "Анатомия Авто",
+  "category": "Автосервис",
+  "tagline": "",
+
+  "city": "Тюмень",
+  "address": "",
+  "address_note": "",
+
+  "hours_lines": ["Пн–Сб 9:00–20:00", "Вс выходной"],
+  "hours_note": "",
+  "week": [
+    { "day": "Пн", "day_full": "Понедельник", "open": "9:00", "close": "20:00", "closed": false },
+    { "day": "Вт", "day_full": "Вторник",     "open": "9:00", "close": "20:00", "closed": false },
+    { "day": "Ср", "day_full": "Среда",       "open": "9:00", "close": "20:00", "closed": false },
+    { "day": "Чт", "day_full": "Четверг",     "open": "9:00", "close": "20:00", "closed": false },
+    { "day": "Пт", "day_full": "Пятница",     "open": "9:00", "close": "20:00", "closed": false },
+    { "day": "Сб", "day_full": "Суббота",     "open": "9:00", "close": "20:00", "closed": false },
+    { "day": "Вс", "day_full": "Воскресенье", "open": "", "close": "", "closed": true }
+  ],
+
+  "rating": "",
+  "rating_count": "",
+  "rating_source": "",
+
+  "phones": [],
+  "links": [],
+  "map_url": "https://2gis.ru/tyumen/geo/70000001030596494",
+  "map_label": "Открыть в 2ГИС",
+
+  "services": [],
+  "prices": [],
+  "prices_note": "",
+  "reviews": [],
+  "reviews_note": "",
+  "about": [],
+  "features": [],
+
+  "source_url": "https://2gis.ru/tyumen/geo/70000001030596494",
+  "source_label": "карточка организации в 2ГИС",
+  "data_date": ""
+}

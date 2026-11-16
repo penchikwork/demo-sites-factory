@@ -1,0 +1,213 @@
+#!/usr/bin/env node
+// Сборка демо-сайтов: content/{slug}.json + template/ → site/{slug}/
+// Без зависимостей. Запуск: node build.js
+// Синтаксис шаблона и поля данных — в template/README.md.
+
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+
+const ROOT = __dirname;
+const TEMPLATE_DIR = path.join(ROOT, 'template');
+const CONTENT_DIR = path.join(ROOT, 'content');
+const SITE_DIR = path.join(ROOT, 'site');
+
+const DEMO_TEXT = 'Демо-концепт, не официальный сайт, удалим по первой просьбе';
+const REQUIRED = ['slug', 'title', 'name'];
+
+// ---------- Шаблонизатор ----------
+
+const TAG = /{{\s*(#if|#each|\/if|\/each|else)?\s*([^}]*?)\s*}}/g;
+
+function parse(src) {
+  const root = { children: [] };
+  const stack = [root];
+  const top = () => stack[stack.length - 1];
+  const out = () => (top().inElse ? top().elseChildren : top().children);
+  let last = 0;
+  let m;
+  TAG.lastIndex = 0;
+  while ((m = TAG.exec(src))) {
+    if (m.index > last) out().push({ type: 'text', value: src.slice(last, m.index) });
+    last = TAG.lastIndex;
+    const [, kw, arg] = m;
+    if (kw === '#if' || kw === '#each') {
+      const node = { type: kw.slice(1), key: arg, children: [], elseChildren: [] };
+      out().push(node);
+      stack.push(node);
+    } else if (kw === 'else') {
+      if (stack.length === 1) throw new Error('{{else}} вне блока');
+      top().inElse = true;
+    } else if (kw === '/if' || kw === '/each') {
+      const node = stack.pop();
+      if (!node || node.type !== kw.slice(1)) throw new Error(`Непарный тег {{${kw}}}`);
+    } else {
+      if (!arg) throw new Error('Пустой тег {{}}');
+      out().push({ type: 'var', key: arg });
+    }
+  }
+  if (last < src.length) out().push({ type: 'text', value: src.slice(last) });
+  if (stack.length !== 1) throw new Error(`Не закрыт блок {{#${top().type} ${top().key}}}`);
+  return root.children;
+}
+
+const MISSING = Symbol('missing');
+
+function lookupOne(ctx, key) {
+  if (key === 'this') return ctx[0];
+  const [head, ...rest] = key.split('.');
+  for (const scope of ctx) {
+    if (scope && typeof scope === 'object' && Object.prototype.hasOwnProperty.call(scope, head)) {
+      return rest.reduce((v, k) => (v == null ? undefined : v[k]), scope[head]);
+    }
+  }
+  return MISSING;
+}
+
+const isFilled = (v) =>
+  Array.isArray(v) ? v.length > 0 : typeof v === 'string' ? v.trim() !== '' : Boolean(v) && v !== MISSING;
+
+function lookup(ctx, key, file) {
+  const keys = key.split('||').map((k) => k.trim());
+  const values = keys.map((k) => {
+    const v = lookupOne(ctx, k);
+    if (v !== MISSING) return v;
+    // Внутри {{#each}} поля элемента необязательны (label?, text?, rating?);
+    // на верхнем уровне отсутствие поля — ошибка (ловит опечатки).
+    if (ctx.length > 1) return undefined;
+    throw new Error(`${file}: в данных нет поля «${k}» (нужно хотя бы пустое значение)`);
+  });
+  return keys.length > 1 ? values.find(isFilled) : values[0];
+}
+
+const escapeHtml = (s) =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function render(nodes, ctx, file) {
+  let html = '';
+  for (const n of nodes) {
+    if (n.type === 'text') html += n.value;
+    else if (n.type === 'var') {
+      const v = lookup(ctx, n.key, file);
+      if (v != null && typeof v === 'object') throw new Error(`${file}: «${n.key}» — объект, а нужна строка`);
+      html += escapeHtml(v == null ? '' : v);
+    } else if (n.type === 'if') {
+      html += render(isFilled(lookup(ctx, n.key, file)) ? n.children : n.elseChildren, ctx, file);
+    } else if (n.type === 'each') {
+      const v = lookup(ctx, n.key, file);
+      if (isFilled(v) && !Array.isArray(v)) throw new Error(`${file}: «${n.key}» должен быть массивом`);
+      html += isFilled(v)
+        ? v.map((item) => render(n.children, [item, ...ctx], file)).join('')
+        : render(n.elseChildren, ctx, file);
+    }
+  }
+  return html;
+}
+
+// ---------- Проверки данных и результата ----------
+
+function prepare(data, file) {
+  for (const k of REQUIRED) {
+    if (!isFilled(data[k])) throw new Error(`${file}: обязательное поле «${k}» пустое`);
+  }
+  const expected = path.basename(file, '.json');
+  if (data.slug !== expected) throw new Error(`${file}: slug «${data.slug}» не совпадает с именем файла`);
+  if (!/^[a-z0-9-]+$/.test(data.slug)) throw new Error(`${file}: slug только из a-z, 0-9 и дефиса`);
+
+  const raw = JSON.stringify(data);
+  if (/inv_by|inv_ts/.test(raw)) throw new Error(`${file}: уберите из ссылок 2ГИС параметры inv_by/inv_ts`);
+
+  // Неразрывный пробел внутри чисел в ценах: «1 500 ₽» не должно рваться.
+  if (Array.isArray(data.prices)) {
+    data.prices = data.prices.map((p) => ({ ...p, price: String(p.price ?? '').replace(/(\d) (?=\d)/g, '$1 ') }));
+  }
+  return data;
+}
+
+function verify(html, file) {
+  const problems = [];
+  if (/{{|}}/.test(html)) problems.push('остались теги {{…}}');
+  if (html.split(DEMO_TEXT).length - 1 < 2) problems.push('плашка «Демо-концепт» должна быть сверху и снизу');
+  if (!/<meta name="robots" content="noindex/.test(html)) problems.push('нет noindex');
+  if (problems.length) throw new Error(`${file}: ${problems.join('; ')}`);
+}
+
+// ---------- Сборка ----------
+
+function build() {
+  const template = parse(fs.readFileSync(path.join(TEMPLATE_DIR, 'index.html'), 'utf8'));
+  const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.json')).sort();
+  if (!files.length) throw new Error('В content/ нет JSON-файлов');
+
+  fs.rmSync(SITE_DIR, { recursive: true, force: true });
+  fs.mkdirSync(SITE_DIR, { recursive: true });
+
+  const built = [];
+  for (const f of files) {
+    const rel = path.join('content', f);
+    const data = prepare(JSON.parse(fs.readFileSync(path.join(CONTENT_DIR, f), 'utf8')), rel);
+    const html = render(template, [data], rel)
+      .replace(/[ \t]+$/gm, '')
+      .replace(/\n{3,}/g, '\n\n');
+    verify(html, rel);
+
+    const out = path.join(SITE_DIR, data.slug);
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, 'index.html'), html);
+    fs.copyFileSync(path.join(TEMPLATE_DIR, 'style.css'), path.join(out, 'style.css'));
+    fs.cpSync(path.join(TEMPLATE_DIR, 'fonts'), path.join(out, 'fonts'), { recursive: true });
+    built.push(data);
+    console.log(`✓ site/${data.slug}/index.html`);
+  }
+
+  // Запрет индексации для всего сайта.
+  fs.writeFileSync(path.join(SITE_DIR, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
+  // GitHub Pages: не обрабатывать сайт Jekyll'ом.
+  fs.writeFileSync(path.join(SITE_DIR, '.nojekyll'), '');
+  fs.writeFileSync(path.join(SITE_DIR, 'index.html'), indexPage(built));
+  console.log(`✓ site/index.html, site/robots.txt — готово: ${built.length} стр.`);
+}
+
+function indexPage(items) {
+  const links = items
+    .map((d) => `      <li><a href="${escapeHtml(d.slug)}/">${escapeHtml(d.name)}</a></li>`)
+    .join('\n');
+  const first = items[0].slug;
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Демо-сайты автосервисов</title>
+  <link rel="stylesheet" href="${first}/style.css">
+  <style>
+    .index li { padding: 14px 0; border-top: 1px solid var(--rule); font-size: var(--fs-l); font-weight: 600; }
+    .index li:last-child { border-bottom: 1px solid var(--rule); }
+  </style>
+</head>
+<body>
+  <div class="demo-bar" role="note"><p class="demo-bar__text">${DEMO_TEXT}</p></div>
+  <main class="section">
+    <h1 class="section__title">Демо-сайты автосервисов</h1>
+    <ul class="index">
+${links}
+    </ul>
+  </main>
+  <footer class="footer">
+    <div class="demo-plate" role="note">
+      <p class="demo-plate__title">${DEMO_TEXT}</p>
+      <p class="demo-plate__text">Страницы сделаны как примеры и не связаны с организациями.</p>
+    </div>
+  </footer>
+</body>
+</html>
+`;
+}
+
+try {
+  build();
+} catch (err) {
+  console.error(`✗ ${err.message}`);
+  process.exit(1);
+}
