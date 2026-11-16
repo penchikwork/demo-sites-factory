@@ -11,11 +11,21 @@
   <meta name="theme-color" content="#1F4E9E">
   <title>{{title}}</title>
   {{#if description}}<meta name="description" content="{{description}}">{{/if}}
-  <link rel="preload" href="fonts/sofia-sans-extra-condensed-cyrillic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/sofia-sans-cyrillic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- build.js заменяет эту строку на <style> со всем CSS и шрифтами внутри: страница самодостаточна -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- Иконки (контурные, 24×24). Размеры и обводка заданы атрибутами — без CSS они не раздуваются. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  </svg>
 
   <!-- Верхняя плашка демо-концепта: обязательна, не удалять и не скрывать -->
   <div class="demo-bar" role="note">
@@ -28,9 +38,7 @@
     <header class="sign">
       <div class="sign__plate">
         <div class="sign__top">
-          <span class="sign__picto" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="30" height="30"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          </span>
+          <span class="sign__picto"><svg class="icon" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-wrench"/></svg></span>
           {{#if category}}<p class="sign__category">{{category}}</p>{{/if}}
         </div>
 
@@ -41,23 +49,40 @@
         <ul class="sign__facts">
           {{#if city}}
           <li class="sign__fact">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
             <span><span class="visually-hidden">Адрес: </span>{{city}}{{#if address}}, {{address}}{{/if}}</span>
           </li>
           {{/if}}
           {{#if hours_lines}}
           <li class="sign__fact">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
             <span><span class="visually-hidden">Часы работы: </span>{{#each hours_lines}}<span class="sign__line">{{this}}</span>{{/each}}</span>
           </li>
           {{/if}}
           {{#if rating}}
           <li class="sign__fact">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-star"/></svg>
             <span>Оценка {{rating}}{{#if rating_source}} в {{rating_source}}{{/if}}{{#if rating_count}}, {{rating_count}}{{/if}}</span>
           </li>
           {{/if}}
         </ul>
+        {{/if}}
+
+        {{#if phones || map_url}}
+        <div class="sign__actions">
+          {{#if phones}}
+          <a class="btn btn--call" href="tel:{{phones.0.href}}">
+            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Позвонить
+          </a>
+          {{/if}}
+          {{#if map_url}}
+          <a class="btn {{#if phones}}btn--on-sign{{else}}btn--call{{/if}}" href="{{map_url}}" target="_blank" rel="noopener nofollow">
+            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
+            {{map_label}}
+          </a>
+          {{/if}}
+        </div>
         {{/if}}
       </div>
     </header>
@@ -89,9 +114,12 @@
       <h2 class="section__title" id="h-services">Услуги</h2>
       <ul class="services">
         {{#each services}}
-        <li class="services__item">
-          <span class="services__title">{{title}}</span>
-          {{#if text}}<span class="services__text">{{text}}</span>{{/if}}
+        <li class="service">
+          <span class="service__icon"><svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-wrench"/></svg></span>
+          <div class="service__body">
+            <h3 class="service__title">{{title}}</h3>
+            {{#if text}}<p class="service__text">{{text}}</p>{{/if}}
+          </div>
         </li>
         {{/each}}
       </ul>
@@ -102,7 +130,7 @@
     {{#if prices}}
     <section class="section" aria-labelledby="h-prices">
       <h2 class="section__title" id="h-prices">Цены</h2>
-      <ul class="pricelist">
+      <ul class="card pricelist">
         {{#each prices}}
         <li class="pricelist__row">
           <span class="pricelist__name">{{name}}</span>
@@ -121,9 +149,9 @@
       <h2 class="section__title" id="h-reviews">Что пишут в отзывах</h2>
       <ul class="reviews">
         {{#each reviews}}
-        <li class="reviews__item">
-          {{#if rating}}<p class="reviews__rating">Оценка {{rating}}</p>{{/if}}
-          <p class="reviews__text">{{text}}</p>
+        <li class="review">
+          {{#if rating}}<p class="review__rating">Оценка {{rating}}</p>{{/if}}
+          <p class="review__text">{{text}}</p>
         </li>
         {{/each}}
       </ul>
@@ -135,32 +163,34 @@
     {{#if about || features}}
     <section class="section" aria-labelledby="h-about">
       <h2 class="section__title" id="h-about">{{#if about}}Об автосервисе{{else}}Удобства{{/if}}</h2>
-      {{#if about}}
-      <div class="prose">
-        {{#each about}}<p>{{this}}</p>{{/each}}
+      <div class="card about">
+        {{#if about}}
+        <div class="prose">
+          {{#each about}}<p>{{this}}</p>{{/each}}
+        </div>
+        {{/if}}
+        {{#if features}}
+        <ul class="features">
+          {{#each features}}
+          <li class="features__item">
+            <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg>
+            <span>{{this}}</span>
+          </li>
+          {{/each}}
+        </ul>
+        {{/if}}
       </div>
-      {{/if}}
-      {{#if features}}
-      <ul class="features">
-        {{#each features}}
-        <li class="features__item">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>{{this}}</span>
-        </li>
-        {{/each}}
-      </ul>
-      {{/if}}
     </section>
     {{/if}}
 
     <!-- Контакты -->
-    {{#if address || phones || links}}
+    {{#if address || phones || links || map_url}}
     <section class="section" aria-labelledby="h-contacts">
       <h2 class="section__title" id="h-contacts">Контакты</h2>
-      <address class="contacts">
+      <address class="card contacts">
         {{#if address}}
         <p class="contacts__row">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
           <span>
             <span class="contacts__label">Адрес</span>
             <span class="contacts__value">{{#if city}}{{city}}, {{/if}}{{address}}</span>
@@ -170,7 +200,7 @@
         {{/if}}
         {{#each phones}}
         <p class="contacts__row">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
           <span>
             <span class="contacts__label">{{#if label}}{{label}}{{else}}Телефон{{/if}}</span>
             <a class="contacts__value" href="tel:{{href}}">{{value}}</a>
@@ -179,13 +209,22 @@
         {{/each}}
         {{#each links}}
         <p class="contacts__row">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-link"/></svg>
           <span>
             <span class="contacts__label">{{label}}</span>
             <a class="contacts__value" href="{{href}}" target="_blank" rel="noopener nofollow">{{value}}</a>
           </span>
         </p>
         {{/each}}
+        {{#if map_url}}
+        <p class="contacts__row">
+          <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
+          <span>
+            <span class="contacts__label">Карта и маршрут</span>
+            <a class="contacts__value" href="{{map_url}}" target="_blank" rel="noopener nofollow">{{map_label}}</a>
+          </span>
+        </p>
+        {{/if}}
       </address>
     </section>
     {{/if}}
@@ -201,18 +240,16 @@
     </div>
   </footer>
 
-  <!-- Нижняя панель действий: всегда под рукой, в конце страницы встаёт под подвал -->
-  {{#if phones || map_url}}
+  <!-- Нижняя панель звонка: появляется после прокрутки первого экрана (где есть телефон) -->
+  {{#if phones}}
   <nav class="dock" aria-label="Быстрые действия">
-    {{#if phones}}
     <a class="btn btn--solid" href="tel:{{phones.0.href}}">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
       Позвонить
     </a>
-    {{/if}}
     {{#if map_url}}
-    <a class="btn {{#if phones}}btn--ghost{{else}}btn--solid{{/if}}" href="{{map_url}}" target="_blank" rel="noopener nofollow">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <a class="btn btn--ghost" href="{{map_url}}" target="_blank" rel="noopener nofollow">
+      <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
       {{map_label}}
     </a>
     {{/if}}

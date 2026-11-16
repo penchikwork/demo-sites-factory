@@ -1,5 +1,6 @@
 /* ==========================================================================
    Эталонный шаблон демо-сайта автосервиса.
+   build.js встраивает этот файл в <style> страницы, а шрифты — как data: URI.
    Идея: первый экран — табличка-знак «Техобслуживание» (синий, белая кайма,
    пиктограмма ключа). Жёлтый — цвет временных знаков — отдан только плашке
    «Демо-концепт». Всё остальное спокойное: график как табличка на двери,
@@ -48,14 +49,16 @@
 /* ---------- Токены ---------- */
 :root {
   /* Цвет */
-  --sign: #1F4E9E;          /* синий дорожного знака */
+  --sign: #1F4E9E;          /* синий дорожного знака: кнопки, акценты */
   --sign-pressed: #173C7A;
-  --sign-soft: #DCE6F6;     /* второстепенный текст на синем, 6.4:1 */
-  --ink: #1C2127;           /* основной текст, графит */
-  --ink-muted: #55606B;     /* второстепенный текст, 6.3:1 на белом */
-  --paper: #FFFFFF;
-  --concrete: #EEF1F4;      /* плитки, подложки */
-  --rule: #D5DBE1;          /* разделители */
+  --sign-soft: #DCE6F6;     /* второстепенный текст на синем, 6.3:1 */
+  --sign-tint: #E8EEF8;     /* подложка иконок в карточках */
+  --ink: #1C2127;           /* основной текст, 16:1 на белом */
+  --ink-muted: #55606B;     /* второстепенный текст, 6.4:1 на белом */
+  --paper: #FFFFFF;         /* карточки */
+  --concrete: #F1F3F6;      /* фон страницы */
+  --tile: #E6EAEF;          /* плитки графика */
+  --rule: #DCE1E7;          /* границы карточек и разделители */
   --rule-strong: #7A8593;   /* отточия в прейскуранте, 3.7:1 */
   --temp: #FFD23F;          /* жёлтый временных знаков — только плашки демо */
 
@@ -63,24 +66,31 @@
   --font-text: "Sofia Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-display: "Sofia Sans Extra Condensed", "Roboto Condensed", "Arial Narrow", "Sofia Sans", sans-serif;
 
-  /* Шкала (≈ 1.25): 14 / 15 / 17 / 19 / 24 / 36 */
-  --fs-xs: 0.875rem;
-  --fs-s: 0.9375rem;
-  --fs-m: 1.0625rem;
-  --fs-l: 1.1875rem;
-  --fs-h2: 2.25rem;
+  /* Типографическая шкала */
+  --fs-xs: 0.875rem;   /* 14 */
+  --fs-s: 0.9375rem;   /* 15 */
+  --fs-m: 1.0625rem;   /* 17 — основной */
+  --fs-l: 1.1875rem;   /* 19 */
+  --fs-h3: 1.25rem;    /* 20 */
+  --fs-h2: 2.125rem;   /* 34 */
 
-  /* Отступы */
+  /* Отступы: шаг 4 px */
   --gutter: 16px;
-  --section-gap: 44px;
-  --radius-sign: 18px;
-  --radius-btn: 10px;
-  --radius-tile: 8px;
+  --section-gap: 40px;
+  --card-pad: 18px;
+
+  /* Скругления по иерархии: знак > карточка > кнопка > плитка */
+  --radius-sign: 20px;
+  --radius-card: 16px;
+  --radius-btn: 12px;
+  --radius-tile: 10px;
+
+  --shadow-card: 0 1px 2px rgba(28, 33, 39, 0.06);
   --measure: 600px;
 }
 
 @media (min-width: 390px) {
-  :root { --gutter: 20px; }
+  :root { --gutter: 20px; --card-pad: 20px; }
 }
 
 /* ---------- База ---------- */
@@ -89,20 +99,21 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  background: var(--concrete);
 }
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--concrete);
   color: var(--ink);
   font-family: var(--font-text);
   font-size: var(--fs-m);
-  line-height: 1.5;
+  line-height: 1.55;
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, p, ul, ol { margin: 0; }
+h1, h2, h3, p, ul, ol { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 
 a { color: var(--sign); text-underline-offset: 0.18em; }
@@ -115,15 +126,14 @@ a:focus-visible {
 
 ::selection { background: var(--temp); color: var(--ink); }
 
+/* Все иконки — фиксированного размера; атрибуты width/height в разметке дублируют это без CSS */
 .icon {
+  display: block;
+  flex: none;
   width: 20px;
   height: 20px;
-  flex: none;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .visually-hidden {
@@ -136,6 +146,13 @@ a:focus-visible {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 /* ---------- Верхняя плашка «Демо-концепт» ---------- */
@@ -156,17 +173,17 @@ a:focus-visible {
 /* ---------- Первый экран: табличка-знак ---------- */
 .sign {
   max-width: var(--measure);
-  margin: 10px auto 0;
-  padding: 0 10px;
+  margin: 12px auto 0;
+  padding: 0 12px;
 }
 
 .sign__plate {
-  padding: 22px 20px 20px;
+  padding: 24px 20px 20px;
   border-radius: var(--radius-sign);
   background: var(--sign);
   color: var(--paper);
   /* белая кайма внутри, как у дорожного знака */
-  box-shadow: inset 0 0 0 5px var(--sign), inset 0 0 0 7px var(--paper);
+  box-shadow: inset 0 0 0 5px var(--sign), inset 0 0 0 7px var(--paper), 0 8px 24px rgba(31, 78, 158, 0.18);
 }
 
 .sign__top {
@@ -181,18 +198,12 @@ a:focus-visible {
   flex: none;
   width: 52px;
   height: 52px;
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--paper);
   color: var(--ink);
 }
 
-.sign__picto svg {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+.sign__picto .icon { width: 30px; height: 30px; }
 
 .sign__category {
   color: var(--sign-soft);
@@ -202,7 +213,7 @@ a:focus-visible {
 }
 
 .sign__name {
-  margin-top: 26px;
+  margin-top: 24px;
   font-family: var(--font-display);
   font-size: clamp(3.25rem, 16vw, 4.75rem);
   font-weight: 800;
@@ -223,7 +234,7 @@ a:focus-visible {
 .sign__facts {
   display: grid;
   gap: 10px;
-  margin-top: 24px;
+  margin-top: 22px;
 }
 
 .sign__fact {
@@ -244,13 +255,21 @@ a:focus-visible {
 /* каждая строка графика — отдельной строкой, чтобы диапазон не рвался */
 .sign__line { display: block; }
 
+.sign__actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.sign a:focus-visible { outline-color: var(--temp); }
+
 /* ---------- Кнопки ---------- */
 .btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-height: 52px;
+  min-height: 56px;
   padding: 12px 18px;
   border-radius: var(--radius-btn);
   font-family: var(--font-text);
@@ -264,15 +283,28 @@ a:focus-visible {
   transition: background-color 0.15s ease-out, color 0.15s ease-out;
 }
 
+.btn .icon { width: 22px; height: 22px; }
+
+/* Главное действие на синем: белая кнопка, 8:1 */
+.btn--call { background: var(--paper); color: var(--sign); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18); }
+.btn--call:active { background: var(--sign-soft); }
+
+/* Второе действие на синем: контур */
+.btn--on-sign { color: var(--paper); box-shadow: inset 0 0 0 2px var(--sign-soft); }
+.btn--on-sign:active { background: var(--sign-pressed); }
+
+/* Нижняя панель */
 .btn--solid { background: var(--sign); color: var(--paper); }
 .btn--solid:active { background: var(--sign-pressed); }
 
-.btn--ghost { background: var(--concrete); color: var(--ink); }
-.btn--ghost:active { background: var(--rule); }
+.btn--ghost { background: var(--concrete); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule); }
+.btn--ghost:active { background: var(--tile); }
 
 @media (hover: hover) {
+  .btn--call:hover { background: var(--sign-soft); }
+  .btn--on-sign:hover { background: var(--sign-pressed); }
   .btn--solid:hover { background: var(--sign-pressed); }
-  .btn--ghost:hover { background: var(--rule); }
+  .btn--ghost:hover { background: var(--tile); }
 }
 
 /* ---------- Секции ---------- */
@@ -283,7 +315,7 @@ a:focus-visible {
 }
 
 .section__title {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   font-family: var(--font-display);
   font-size: var(--fs-h2);
   font-weight: 800;
@@ -292,7 +324,7 @@ a:focus-visible {
 }
 
 .section__note {
-  margin-top: 14px;
+  margin-top: 12px;
   color: var(--ink-muted);
   font-size: var(--fs-s);
   line-height: 1.4;
@@ -312,12 +344,14 @@ a:focus-visible {
   gap: 6px;
   min-width: 0;
   padding: 10px 2px 12px;
+  border: 1px solid var(--rule);
   border-radius: var(--radius-tile);
-  background: var(--concrete);
+  background: var(--paper);
   text-align: center;
 }
 
 .week__name {
+  color: var(--sign);
   font-size: var(--fs-s);
   font-weight: 700;
   line-height: 1.2;
@@ -331,52 +365,77 @@ a:focus-visible {
 }
 
 .week__day--closed {
-  background: repeating-linear-gradient(-45deg, var(--concrete) 0 6px, var(--paper) 6px 12px);
-  box-shadow: inset 0 0 0 1px var(--rule);
+  background: repeating-linear-gradient(-45deg, var(--tile) 0 6px, var(--paper) 6px 12px);
   color: var(--ink-muted);
 }
 
-/* ---------- Услуги ---------- */
-.services__item {
-  position: relative;
+.week__day--closed .week__name { color: var(--ink-muted); }
+
+/* ---------- Услуги: карточки ---------- */
+.services {
   display: grid;
-  gap: 2px;
-  padding: 14px 0 14px 24px;
-  border-top: 1px solid var(--rule);
+  gap: 10px;
 }
 
-.services__item:last-child { border-bottom: 1px solid var(--rule); }
-
-.services__item::before {
-  content: "";
-  position: absolute;
-  top: calc(14px + 0.5em);
-  left: 2px;
-  width: 9px;
-  height: 9px;
-  border-radius: 2px;
-  background: var(--sign);
+.service {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: var(--card-pad);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
-.services__title {
-  font-size: var(--fs-l);
-  font-weight: 600;
-  line-height: 1.3;
+.service__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-tile);
+  background: var(--sign-tint);
+  color: var(--sign);
 }
 
-.services__text {
+.service__icon .icon { width: 22px; height: 22px; }
+
+.service__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.service__title {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.service__text {
   color: var(--ink-muted);
   font-size: var(--fs-s);
   line-height: 1.45;
 }
 
+@media (min-width: 560px) {
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* ---------- Цены: прейскурант с отточиями ---------- */
+.pricelist { padding: 6px var(--card-pad); }
+
 .pricelist__row {
   display: flex;
   align-items: flex-end;
   align-items: last baseline;
-  padding: 10px 0;
+  padding: 12px 0;
 }
+
+.pricelist__row + .pricelist__row { border-top: 1px solid var(--concrete); }
 
 .pricelist__name {
   flex: 0 1 auto;
@@ -397,43 +456,46 @@ a:focus-visible {
   white-space: nowrap; /* цена не рвётся внутри числа; сжимается название */
   font-weight: 700;
   line-height: 1.35;
-  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Отзывы (пересказ, без имён) ---------- */
 .reviews {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
-.reviews__item {
-  padding: 16px 18px;
+.review {
+  padding: var(--card-pad);
+  border: 1px solid var(--rule);
   border-left: 4px solid var(--sign);
-  border-radius: 0 var(--radius-btn) var(--radius-btn) 0;
-  background: var(--concrete);
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
 }
 
-.reviews__rating {
+.review__rating {
   margin-bottom: 6px;
   color: var(--sign);
   font-size: var(--fs-xs);
   font-weight: 700;
 }
 
-.reviews__text { line-height: 1.5; }
-
 /* ---------- Об автосервисе и удобства ---------- */
-.prose p + p { margin-top: 12px; }
+.about { padding: var(--card-pad); }
 .prose { max-width: 65ch; }
+.prose p + p { margin-top: 12px; }
 
 .features {
   display: grid;
   gap: 10px;
-  margin-top: 20px;
 }
 
-.section__title + .features { margin-top: 0; }
+.prose + .features {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
 
 .features__item {
   display: flex;
@@ -445,21 +507,22 @@ a:focus-visible {
 .features__item .icon {
   margin-top: 1px;
   color: var(--sign);
-  stroke-width: 2.5;
 }
 
 /* ---------- Контакты ---------- */
-.contacts { font-style: normal; }
+.contacts {
+  padding: 0 var(--card-pad);
+  font-style: normal;
+}
 
 .contacts__row {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 0;
-  border-top: 1px solid var(--rule);
+  gap: 14px;
+  padding: 16px 0;
 }
 
-.contacts__row:last-child { border-bottom: 1px solid var(--rule); }
+.contacts__row + .contacts__row { border-top: 1px solid var(--rule); }
 
 .contacts__row .icon {
   width: 22px;
@@ -485,20 +548,20 @@ a:focus-visible {
   overflow-wrap: anywhere;
 }
 
-a.contacts__value { display: inline-block; padding: 4px 0; margin: -4px 0; }
+a.contacts__value { display: inline-block; padding: 6px 0; margin: -6px 0; }
 
 /* ---------- Подвал и нижняя плашка «Демо-концепт» ---------- */
 .footer {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: var(--section-gap) 10px 16px;
+  padding: var(--section-gap) 12px 16px;
 }
 
 .demo-plate {
   display: grid;
   gap: 10px;
   padding: 22px 20px 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   background: var(--temp);
   color: var(--ink);
   /* чёрная кайма на жёлтом — как у временного знака */
@@ -521,7 +584,7 @@ a.contacts__value { display: inline-block; padding: 4px 0; margin: -4px 0; }
 .demo-plate a { color: var(--ink); font-weight: 700; }
 .demo-plate a:focus-visible { outline-color: var(--ink); }
 
-/* ---------- Нижняя панель действий ---------- */
+/* ---------- Нижняя панель звонка ---------- */
 .dock {
   position: sticky;
   bottom: 0;
@@ -544,10 +607,25 @@ a.contacts__value { display: inline-block; padding: 4px 0; margin: -4px 0; }
   font-size: var(--fs-m);
 }
 
+/* Где браузер умеет анимацию по прокрутке — панель выезжает после первого экрана,
+   чтобы не дублировать кнопки таблички. В остальных браузерах она видна всегда. */
+@supports (animation-timeline: scroll()) {
+  .dock {
+    animation: dock-in linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 320px;
+  }
+  @keyframes dock-in {
+    0%, 70% { transform: translateY(110%); visibility: hidden; }
+    100% { transform: none; visibility: visible; }
+  }
+}
+
 /* ---------- Шире телефона ---------- */
 @media (min-width: 640px) {
   .sign { margin-top: 24px; }
   .sign__plate { padding: 32px 32px 28px; }
+  .sign__actions { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
   .week__day { padding: 14px 4px 16px; }
 }
 

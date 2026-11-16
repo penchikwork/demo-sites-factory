@@ -104,6 +104,27 @@ function render(nodes, ctx, file) {
   return html;
 }
 
+// ---------- Встраивание CSS и шрифтов ----------
+// Страница должна открываться где угодно — локально (file://), в превью, одним файлом.
+// Поэтому CSS кладём в <style>, а шрифты — внутрь CSS как data: URI.
+
+const LINK_TAG = '<link rel="stylesheet" href="style.css">';
+
+function inlineCss(html) {
+  let css = fs.readFileSync(path.join(TEMPLATE_DIR, 'style.css'), 'utf8');
+  // Подмножество latin-ext нужно только для знака ₽ — встраиваем, если он есть на странице.
+  if (!html.includes('₽')) {
+    css = css.replace(/@font-face\s*{[^}]*latin-ext[^}]*}\s*/g, '');
+  }
+  css = css.replace(/url\((fonts\/[^)]+\.woff2)\)/g, (_, rel) => {
+    const file = path.join(TEMPLATE_DIR, rel);
+    if (!fs.existsSync(file)) throw new Error(`Нет файла шрифта ${rel}`);
+    return `url(data:font/woff2;base64,${fs.readFileSync(file).toString('base64')})`;
+  });
+  if (!html.includes(LINK_TAG)) throw new Error(`В шаблоне нет строки ${LINK_TAG}`);
+  return html.replace(LINK_TAG, () => `<style>\n${css}\n</style>`);
+}
+
 // ---------- Проверки данных и результата ----------
 
 function prepare(data, file) {
@@ -129,6 +150,8 @@ function verify(html, file) {
   if (/{{|}}/.test(html)) problems.push('остались теги {{…}}');
   if (html.split(DEMO_TEXT).length - 1 < 2) problems.push('плашка «Демо-концепт» должна быть сверху и снизу');
   if (!/<meta name="robots" content="noindex/.test(html)) problems.push('нет noindex');
+  if (/<link[^>]+stylesheet/.test(html) || /url\(fonts\//.test(html)) problems.push('остались внешние CSS/шрифты');
+  if (!html.includes('<style>')) problems.push('нет встроенного CSS');
   if (problems.length) throw new Error(`${file}: ${problems.join('; ')}`);
 }
 
@@ -146,25 +169,27 @@ function build() {
   for (const f of files) {
     const rel = path.join('content', f);
     const data = prepare(JSON.parse(fs.readFileSync(path.join(CONTENT_DIR, f), 'utf8')), rel);
-    const html = render(template, [data], rel)
-      .replace(/[ \t]+$/gm, '')
-      .replace(/\n{3,}/g, '\n\n');
+    const html = inlineCss(
+      render(template, [data], rel)
+        .replace(/[ \t]+$/gm, '')
+        .replace(/\n{3,}/g, '\n\n')
+    );
     verify(html, rel);
 
     const out = path.join(SITE_DIR, data.slug);
     fs.mkdirSync(out, { recursive: true });
     fs.writeFileSync(path.join(out, 'index.html'), html);
-    fs.copyFileSync(path.join(TEMPLATE_DIR, 'style.css'), path.join(out, 'style.css'));
-    fs.cpSync(path.join(TEMPLATE_DIR, 'fonts'), path.join(out, 'fonts'), { recursive: true });
     built.push(data);
-    console.log(`✓ site/${data.slug}/index.html`);
+    console.log(`✓ site/${data.slug}/index.html (${Math.round(Buffer.byteLength(html) / 1024)} КБ, всё внутри)`);
   }
 
   // Запрет индексации для всего сайта.
   fs.writeFileSync(path.join(SITE_DIR, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
   // GitHub Pages: не обрабатывать сайт Jekyll'ом.
   fs.writeFileSync(path.join(SITE_DIR, '.nojekyll'), '');
-  fs.writeFileSync(path.join(SITE_DIR, 'index.html'), indexPage(built));
+  const index = inlineCss(indexPage(built));
+  verify(index, 'site/index.html');
+  fs.writeFileSync(path.join(SITE_DIR, 'index.html'), index);
   console.log(`✓ site/index.html, site/robots.txt — готово: ${built.length} стр.`);
 }
 
@@ -172,7 +197,6 @@ function indexPage(items) {
   const links = items
     .map((d) => `      <li><a href="${escapeHtml(d.slug)}/">${escapeHtml(d.name)}</a></li>`)
     .join('\n');
-  const first = items[0].slug;
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -180,17 +204,19 @@ function indexPage(items) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <title>Демо-сайты автосервисов</title>
-  <link rel="stylesheet" href="${first}/style.css">
+  ${LINK_TAG}
   <style>
-    .index li { padding: 14px 0; border-top: 1px solid var(--rule); font-size: var(--fs-l); font-weight: 600; }
-    .index li:last-child { border-bottom: 1px solid var(--rule); }
+    .index { padding: 0 var(--card-pad); }
+    .index li { font-size: var(--fs-l); font-weight: 600; }
+    .index li + li { border-top: 1px solid var(--rule); }
+    .index a { display: block; padding: 14px 0; }
   </style>
 </head>
 <body>
   <div class="demo-bar" role="note"><p class="demo-bar__text">${DEMO_TEXT}</p></div>
   <main class="section">
     <h1 class="section__title">Демо-сайты автосервисов</h1>
-    <ul class="index">
+    <ul class="card index">
 ${links}
     </ul>
   </main>
