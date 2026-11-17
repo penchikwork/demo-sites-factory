@@ -139,8 +139,9 @@ function prepare(data, file) {
   if (/inv_by|inv_ts/.test(raw)) throw new Error(`${file}: уберите из ссылок 2ГИС параметры inv_by/inv_ts`);
 
   // Неразрывный пробел внутри чисел в ценах: «1 500 ₽» не должно рваться.
-  if (Array.isArray(data.prices)) {
-    data.prices = data.prices.map((p) => ({ ...p, price: String(p.price ?? '').replace(/(\d) (?=\d)/g, '$1 ') }));
+  const nbsp = (v) => String(v).replace(/(\d) (?=\d)/g, "$1\u00A0").replace(/ ₽/g, "\u00A0₽");
+  for (const key of ["prices", "services"]) {
+    if (Array.isArray(data[key])) data[key] = data[key].map((p) => (p.price ? { ...p, price: nbsp(p.price) } : p));
   }
   return data;
 }
