@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "Автосервис и автомойка",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "улица Николая Фёдорова, 32",
   "address_note": "",
   "hours_lines": [

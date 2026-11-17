@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-tz="Asia/Yekaterinburg">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -77,6 +77,7 @@
   --accent-pressed: #DB6210;
   --on-accent: #0E1013;     /* текст на оранжевом: 7:1 (белый дал бы только 2.8:1) */
   --accent-tint: rgba(249, 115, 22, 0.12);
+  --ok: #22C55E;            /* «открыто сейчас»: 8.6:1 на карточке */
 
   /* Шрифт */
   --font-text: "Sofia Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -123,7 +124,10 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+  /* тёплое свечение у первого экрана, дальше — ровный графит */
+  background:
+    radial-gradient(120% 520px at 85% -120px, rgba(249, 115, 22, 0.13), transparent 70%),
+    var(--bg);
   color: var(--text);
   font-family: var(--font-text);
   font-size: var(--fs-m);
@@ -214,9 +218,26 @@ a:focus-visible {
     radial-gradient(circle at calc(100% - 14px) 14px, #3A4049 0 3px, transparent 3.5px),
     radial-gradient(circle at 14px calc(100% - 14px), #3A4049 0 3px, transparent 3.5px),
     radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #3A4049 0 3px, transparent 3.5px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px),
+    radial-gradient(90% 70% at 100% 0%, rgba(249, 115, 22, 0.16), transparent 65%),
     var(--card);
   overflow: hidden;
+  isolation: isolate;
+}
+
+/* инженерная сетка 24 px, гаснет к низу таблички */
+.sign__plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 85%);
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 85%);
 }
 
 /* оранжевая полоса разметки по верхней кромке таблички */
@@ -298,6 +319,50 @@ a:focus-visible {
 
 /* каждая строка графика — отдельной строкой, чтобы диапазон не рвался */
 .sign__line { display: block; }
+
+/* Статус по графику: зелёная пульсирующая точка — только когда открыто */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 4px 10px 4px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.status[hidden] { display: none; }
+
+.status__dot {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rule-strong);
+}
+
+.status--open { color: var(--ok); border-color: rgba(34, 197, 94, 0.35); }
+.status--open .status__dot { background: var(--ok); }
+
+.status--open .status__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ok);
+  animation: pulse 2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(2.8); opacity: 0; }
+}
 
 .sign__actions {
   display: grid;
@@ -402,7 +467,45 @@ a:focus-visible {
 
 .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
-/* Главное действие: оранжевая кнопка с тёмным текстом, 7:1 */
+/* Главное действие: оранжевая кнопка с тёмным текстом, 7:1.
+   По нажатию — короткий блик и лёгкое «вдавливание». */
+.btn--call,
+.dock__call {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: background-color 0.15s ease-out, transform 0.12s ease-out, box-shadow 0.2s ease-out;
+}
+
+.btn--call::after,
+.dock__call::after {
+  content: "";
+  position: absolute;
+  inset: -20% auto -20% -60%;
+  z-index: -1;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: skewX(-18deg) translateX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn--call.is-pressed::after,
+.dock__call.is-pressed::after { animation: shine 0.6s ease-out; }
+
+@keyframes shine {
+  0% { opacity: 1; transform: skewX(-18deg) translateX(0); }
+  100% { opacity: 0; transform: skewX(-18deg) translateX(420%); }
+}
+
+.btn--call:active,
+.dock__call:active { transform: scale(0.98); }
+
+@media (hover: hover) {
+  .btn--call:hover { box-shadow: 0 8px 28px -10px rgba(249, 115, 22, 0.7); }
+}
+
+
 .btn--call,
 .btn--solid { background: var(--accent); color: var(--on-accent); }
 .btn--call:active,
@@ -499,6 +602,11 @@ a:focus-visible {
 
 .week__day--closed .week__name { color: var(--text-muted); }
 
+.week__day--today {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
 /* ---------- Услуги и цены: прайс-лист ---------- */
 .offers {
   display: grid;
@@ -506,10 +614,46 @@ a:focus-visible {
 }
 
 .offer {
+  position: relative;
   padding: 16px var(--card-pad);
   background: var(--card);
   border: 1px solid var(--rule);
   border-radius: var(--radius-card);
+  transition: border-color 0.25s ease-out, box-shadow 0.25s ease-out, background-color 0.25s ease-out;
+}
+
+/* ссылка «Узнать точную цену» растянута на всю карточку */
+.offer__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 0;
+  color: var(--accent);
+  font-size: var(--fs-s);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.offer__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.offer__cta .icon { width: 18px; height: 18px; }
+
+.offer__cta:focus-visible { outline: none; }
+.offer:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.offer:active { background: var(--card-raised); }
+
+@media (hover: hover) {
+  .offer:hover {
+    border-color: rgba(249, 115, 22, 0.6);
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.25), 0 10px 30px -14px rgba(249, 115, 22, 0.45);
+  }
+  .offer:hover .offer__cta { text-decoration: underline; text-underline-offset: 0.2em; }
 }
 
 /* название слева, цена справа; если тесно — цена уходит под название */
@@ -702,8 +846,17 @@ a.contacts__value {
   max-width: var(--measure);
   margin: 0 auto;
   padding: 8px var(--gutter) calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(14, 16, 19, 0.96);
+}
+
+/* матовое стекло там, где браузер умеет blur; иначе — плотный графит */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dock {
+    background: rgba(18, 21, 26, 0.68);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+  }
 }
 
 .dock .btn { min-height: 52px; padding: 10px 14px; font-size: var(--fs-l); }
@@ -713,6 +866,20 @@ a.contacts__value {
 @media (min-width: 768px) {
   .dock { display: none; }
 }
+
+/* ---------- Появление карточек при прокрутке ---------- */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.25s ease-out, box-shadow 0.25s ease-out, background-color 0.25s ease-out;
+}
+
+.js .reveal.is-in { opacity: 1; transform: none; }
+
+/* соседние карточки — с небольшой задержкой друг за другом */
+.offers .reveal:nth-child(2), .praise .reveal:nth-child(2) { transition-delay: 60ms; }
+.offers .reveal:nth-child(3), .praise .reveal:nth-child(3) { transition-delay: 120ms; }
 
 /* ---------- Заглушка корня сайта ---------- */
 .stub {
@@ -745,10 +912,13 @@ a.contacts__value {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  * { transition: none !important; animation: none !important; }
+  .js .reveal { opacity: 1; transform: none; }
 }
 
 </style>
+  <!-- Класс js включает анимации появления; без JS всё видно сразу -->
+  <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 
@@ -794,7 +964,10 @@ a.contacts__value {
 
           <li class="sign__fact">
             <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
-            <span><span class="visually-hidden">Часы работы: </span><span class="sign__line">Ежедневно 9:00–19:00</span></span>
+            <span>
+              <span class="visually-hidden">Часы работы: </span><span class="sign__line">Ежедневно 9:00–19:00</span>
+              <span class="status" data-status hidden><span class="status__dot" aria-hidden="true"></span><span class="status__text" aria-live="polite"></span></span>
+            </span>
           </li>
 
         </ul>
@@ -829,9 +1002,9 @@ a.contacts__value {
 
     <section class="section" aria-labelledby="h-hours">
       <h2 class="section__title" id="h-hours">Режим работы</h2>
-      <ol class="week">
+      <ol class="week reveal">
 
-        <li class="week__day">
+        <li class="week__day" data-day="Пн" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Пн</span>
           <span class="visually-hidden">Понедельник:</span>
 
@@ -839,7 +1012,7 @@ a.contacts__value {
 
         </li>
 
-        <li class="week__day">
+        <li class="week__day" data-day="Вт" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Вт</span>
           <span class="visually-hidden">Вторник:</span>
 
@@ -847,7 +1020,7 @@ a.contacts__value {
 
         </li>
 
-        <li class="week__day">
+        <li class="week__day" data-day="Ср" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Ср</span>
           <span class="visually-hidden">Среда:</span>
 
@@ -855,7 +1028,7 @@ a.contacts__value {
 
         </li>
 
-        <li class="week__day">
+        <li class="week__day" data-day="Чт" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Чт</span>
           <span class="visually-hidden">Четверг:</span>
 
@@ -863,7 +1036,7 @@ a.contacts__value {
 
         </li>
 
-        <li class="week__day">
+        <li class="week__day" data-day="Пт" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Пт</span>
           <span class="visually-hidden">Пятница:</span>
 
@@ -871,7 +1044,7 @@ a.contacts__value {
 
         </li>
 
-        <li class="week__day">
+        <li class="week__day" data-day="Сб" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Сб</span>
           <span class="visually-hidden">Суббота:</span>
 
@@ -879,7 +1052,7 @@ a.contacts__value {
 
         </li>
 
-        <li class="week__day">
+        <li class="week__day" data-day="Вс" data-open="9:00" data-close="19:00">
           <span class="week__name" aria-hidden="true">Вс</span>
           <span class="visually-hidden">Воскресенье:</span>
 
@@ -897,83 +1070,144 @@ a.contacts__value {
       <h2 class="section__title" id="h-services">Услуги и цены</h2>
       <ul class="offers">
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена воздушного фильтра</h3>
             <p class="offer__price">от 210 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена воздушного фильтра">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена воздушного фильтра</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена тормозных колодок</h3>
             <p class="offer__price">от 700 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена тормозных колодок">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена тормозных колодок</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена охлаждающей жидкости</h3>
             <p class="offer__price">от 840 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена охлаждающей жидкости">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена охлаждающей жидкости</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Осмотр подвески</h3>
             <p class="offer__price">от 945 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Осмотр подвески">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Осмотр подвески</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена тормозных дисков</h3>
             <p class="offer__price">от 1 050 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена тормозных дисков">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена тормозных дисков</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена амортизатора</h3>
             <p class="offer__price">от 2 520 ₽</p>
           </div>
           <p class="offer__text">Передний или задний</p>
+
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена амортизатора">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена амортизатора</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена ГРМ</h3>
             <p class="offer__price">от 5 250 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена ГРМ">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена ГРМ</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена рулевой рейки</h3>
             <p class="offer__price">от 7 350 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена рулевой рейки">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена рулевой рейки</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Сцепление в сборе</h3>
             <p class="offer__price">от 8 400 ₽</p>
           </div>
 
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Сцепление в сборе">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Сцепление в сборе</span>
+          </a>
+
         </li>
 
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">Замена прокладки ГБЦ</h3>
             <p class="offer__price">от 12 600 ₽</p>
           </div>
+
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="tel:+73452500580" data-service="Замена прокладки ГБЦ">
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+            Узнать точную цену<span class="visually-hidden">: Замена прокладки ГБЦ</span>
+          </a>
 
         </li>
 
@@ -987,7 +1221,7 @@ a.contacts__value {
 
     <section class="section" aria-labelledby="h-about">
       <h2 class="section__title" id="h-about">Об автосервисе</h2>
-      <div class="card about">
+      <div class="card about reveal">
 
         <div class="prose">
           <p>В карточке 2ГИС указан ремонт более 20 марок легковых авто, в том числе Toyota, Volkswagen, Hyundai, Kia, Nissan, Lada (ВАЗ), Ford и Renault. Грузовые Daewoo, Hyundai и Kia тоже обслуживают.</p><p>Кроме ремонта, есть продажа запчастей для иномарок, автохимии и автоаксессуаров. Организация отмечена Премией 2ГИС: в 2017 и 2019 годах, а в 2026 году она номинант.</p><p>По данным сайта компании, у сети три филиала, 19 постов, склад на 42 526 запчастей и гарантия до 2 лет.</p>
@@ -1034,7 +1268,7 @@ a.contacts__value {
 
     <section class="section" aria-labelledby="h-contacts">
       <h2 class="section__title" id="h-contacts">Контакты</h2>
-      <address class="card contacts">
+      <address class="card contacts reveal">
 
         <p class="contacts__row">
           <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
@@ -1097,5 +1331,96 @@ a.contacts__value {
 
   </nav>
 
+  <!-- Мини-скрипт без библиотек: статус «открыто сейчас», появление карточек,
+       отклик главной кнопки, текст заявки в мессенджер. Без него страница работает целиком. -->
+  <script>
+  (function () {
+    var root = document.documentElement;
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 1. Открыто ли сейчас — по графику со страницы и часовому поясу города.
+    var status = document.querySelector('[data-status]');
+    var days = Array.prototype.slice.call(document.querySelectorAll('.week__day[data-day]'));
+    if (status && days.length && root.dataset.tz) {
+      try {
+        var parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: root.dataset.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date());
+        var get = function (t) {
+          return parts.filter(function (p) { return p.type === t; })[0].value;
+        };
+        var order = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        var names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+        var onDay = ['в понедельник', 'во вторник', 'в среду', 'в четверг', 'в пятницу', 'в субботу', 'в воскресенье'];
+        var today = order.indexOf(get('weekday'));
+        var now = parseInt(get('hour'), 10) * 60 + parseInt(get('minute'), 10);
+        var mins = function (s) {
+          var m = /^(\d{1,2}):(\d{2})$/.exec(s || '');
+          return m ? m[1] * 60 + +m[2] : null;
+        };
+        var byName = {};
+        days.forEach(function (li) { byName[li.dataset.day] = li; });
+        var dayInfo = function (i) {
+          var li = byName[names[i]];
+          if (!li) return null;
+          return { li: li, closed: li.hasAttribute('data-closed'), open: mins(li.dataset.open), close: mins(li.dataset.close), openText: li.dataset.open, closeText: li.dataset.close };
+        };
+        var t = dayInfo(today);
+        if (t) t.li.classList.add('week__day--today');
+        var text = '';
+        if (t && !t.closed && t.open !== null && t.close !== null && now >= t.open && now < t.close) {
+          text = 'Открыто до ' + t.closeText;
+          status.classList.add('status--open');
+        } else if (t && !t.closed && t.open !== null && now < t.open) {
+          text = 'Закрыто, откроется в ' + t.openText;
+        } else {
+          for (var k = 1; k <= 7; k++) {
+            var n = dayInfo((today + k) % 7);
+            if (n && !n.closed && n.open !== null) {
+              text = 'Закрыто, откроется ' + (k === 1 ? 'завтра' : onDay[(today + k) % 7]) + ' в ' + n.openText;
+              break;
+            }
+          }
+        }
+        if (text) {
+          status.querySelector('.status__text').textContent = text;
+          status.hidden = false;
+        }
+      } catch (e) { /* без статуса */ }
+    }
+
+    // 2. Плавное появление карточек при прокрутке.
+    var items = document.querySelectorAll('.reveal');
+    if (!still && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      Array.prototype.forEach.call(items, function (el) { io.observe(el); });
+    } else {
+      Array.prototype.forEach.call(items, function (el) { el.classList.add('is-in'); });
+    }
+
+    // 3. Блик по нажатию на главные кнопки звонка.
+    Array.prototype.forEach.call(document.querySelectorAll('.btn--call, .dock__call'), function (btn) {
+      btn.addEventListener('pointerdown', function () {
+        btn.classList.remove('is-pressed');
+        void btn.offsetWidth;
+        btn.classList.add('is-pressed');
+      });
+      btn.addEventListener('animationend', function () { btn.classList.remove('is-pressed'); });
+    });
+
+    // 4. Заявка из карточки услуги: в мессенджер — с готовым текстом.
+    Array.prototype.forEach.call(document.querySelectorAll('.offer__cta[data-messenger]'), function (a) {
+      var msg = 'Здравствуйте! Подскажите по стоимости: ' + a.dataset.service;
+      a.href = a.href + (a.href.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
+    });
+  })();
+  </script>
 </body>
 </html>

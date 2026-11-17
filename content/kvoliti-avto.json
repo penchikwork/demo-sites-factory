@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "улица Энергетиков, 102 ст7/1",
   "address_note": "",
   "hours_lines": [

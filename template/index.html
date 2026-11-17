@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-tz="{{timezone}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,6 +13,8 @@
   {{#if description}}<meta name="description" content="{{description}}">{{/if}}
   <!-- build.js заменяет эту строку на <style> со всем CSS и шрифтами внутри: страница самодостаточна -->
   <link rel="stylesheet" href="style.css">
+  <!-- Класс js включает анимации появления; без JS всё видно сразу -->
+  <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 
@@ -60,7 +62,10 @@
           {{#if hours_lines}}
           <li class="sign__fact">
             <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
-            <span><span class="visually-hidden">Часы работы: </span>{{#each hours_lines}}<span class="sign__line">{{this}}</span>{{/each}}</span>
+            <span>
+              <span class="visually-hidden">Часы работы: </span>{{#each hours_lines}}<span class="sign__line">{{this}}</span>{{/each}}
+              {{#if week}}<span class="status" data-status hidden><span class="status__dot" aria-hidden="true"></span><span class="status__text" aria-live="polite"></span></span>{{/if}}
+            </span>
           </li>
           {{/if}}
         </ul>
@@ -106,9 +111,9 @@
     {{#if week}}
     <section class="section" aria-labelledby="h-hours">
       <h2 class="section__title" id="h-hours">Режим работы</h2>
-      <ol class="week">
+      <ol class="week reveal">
         {{#each week}}
-        <li class="week__day{{#if closed}} week__day--closed{{/if}}">
+        <li class="week__day{{#if closed}} week__day--closed{{/if}}" data-day="{{day}}" data-open="{{open}}" data-close="{{close}}"{{#if closed}} data-closed{{/if}}>
           <span class="week__name" aria-hidden="true">{{day}}</span>
           <span class="visually-hidden">{{day_full}}:</span>
           {{#if closed}}
@@ -129,12 +134,19 @@
       <h2 class="section__title" id="h-services">Услуги и цены</h2>
       <ul class="offers">
         {{#each services}}
-        <li class="offer">
+        <li class="offer reveal">
           <div class="offer__head">
             <h3 class="offer__title">{{title}}</h3>
             {{#if price}}<p class="offer__price">{{price}}</p>{{else}}<p class="offer__price offer__price--ask">по запросу</p>{{/if}}
           </div>
           {{#if text}}<p class="offer__text">{{text}}</p>{{/if}}
+          {{#if messengers || phones}}
+          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <a class="offer__cta" href="{{#if messengers}}{{messengers.0.href}}{{else}}tel:{{phones.0.href}}{{/if}}" data-service="{{title}}"{{#if messengers}} data-messenger target="_blank" rel="noopener nofollow"{{/if}}>
+            <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#{{#if messengers}}i-chat{{else}}i-phone{{/if}}"/></svg>
+            Узнать точную цену<span class="visually-hidden">: {{title}}</span>
+          </a>
+          {{/if}}
         </li>
         {{/each}}
       </ul>
@@ -148,7 +160,7 @@
       <h2 class="section__title" id="h-reviews">Что хвалят клиенты</h2>
       <ul class="praise">
         {{#each reviews}}
-        <li class="praise__item">
+        <li class="praise__item reveal">
           <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg>
           <p class="praise__text">{{text}}</p>
         </li>
@@ -162,7 +174,7 @@
     {{#if about || features}}
     <section class="section" aria-labelledby="h-about">
       <h2 class="section__title" id="h-about">{{#if about}}Об автосервисе{{else}}Удобства{{/if}}</h2>
-      <div class="card about">
+      <div class="card about reveal">
         {{#if about}}
         <div class="prose">
           {{#each about}}<p>{{this}}</p>{{/each}}
@@ -186,7 +198,7 @@
     {{#if address || phones || links || map_url}}
     <section class="section" aria-labelledby="h-contacts">
       <h2 class="section__title" id="h-contacts">Контакты</h2>
-      <address class="card contacts">
+      <address class="card contacts reveal">
         {{#if address}}
         <p class="contacts__row">
           <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
@@ -254,5 +266,97 @@
   </nav>
   {{/if}}
 
+
+  <!-- Мини-скрипт без библиотек: статус «открыто сейчас», появление карточек,
+       отклик главной кнопки, текст заявки в мессенджер. Без него страница работает целиком. -->
+  <script>
+  (function () {
+    var root = document.documentElement;
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 1. Открыто ли сейчас — по графику со страницы и часовому поясу города.
+    var status = document.querySelector('[data-status]');
+    var days = Array.prototype.slice.call(document.querySelectorAll('.week__day[data-day]'));
+    if (status && days.length && root.dataset.tz) {
+      try {
+        var parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: root.dataset.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date());
+        var get = function (t) {
+          return parts.filter(function (p) { return p.type === t; })[0].value;
+        };
+        var order = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        var names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+        var onDay = ['в понедельник', 'во вторник', 'в среду', 'в четверг', 'в пятницу', 'в субботу', 'в воскресенье'];
+        var today = order.indexOf(get('weekday'));
+        var now = parseInt(get('hour'), 10) * 60 + parseInt(get('minute'), 10);
+        var mins = function (s) {
+          var m = /^(\d{1,2}):(\d{2})$/.exec(s || '');
+          return m ? m[1] * 60 + +m[2] : null;
+        };
+        var byName = {};
+        days.forEach(function (li) { byName[li.dataset.day] = li; });
+        var dayInfo = function (i) {
+          var li = byName[names[i]];
+          if (!li) return null;
+          return { li: li, closed: li.hasAttribute('data-closed'), open: mins(li.dataset.open), close: mins(li.dataset.close), openText: li.dataset.open, closeText: li.dataset.close };
+        };
+        var t = dayInfo(today);
+        if (t) t.li.classList.add('week__day--today');
+        var text = '';
+        if (t && !t.closed && t.open !== null && t.close !== null && now >= t.open && now < t.close) {
+          text = 'Открыто до ' + t.closeText;
+          status.classList.add('status--open');
+        } else if (t && !t.closed && t.open !== null && now < t.open) {
+          text = 'Закрыто, откроется в ' + t.openText;
+        } else {
+          for (var k = 1; k <= 7; k++) {
+            var n = dayInfo((today + k) % 7);
+            if (n && !n.closed && n.open !== null) {
+              text = 'Закрыто, откроется ' + (k === 1 ? 'завтра' : onDay[(today + k) % 7]) + ' в ' + n.openText;
+              break;
+            }
+          }
+        }
+        if (text) {
+          status.querySelector('.status__text').textContent = text;
+          status.hidden = false;
+        }
+      } catch (e) { /* без статуса */ }
+    }
+
+    // 2. Плавное появление карточек при прокрутке.
+    var items = document.querySelectorAll('.reveal');
+    if (!still && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      Array.prototype.forEach.call(items, function (el) { io.observe(el); });
+    } else {
+      Array.prototype.forEach.call(items, function (el) { el.classList.add('is-in'); });
+    }
+
+    // 3. Блик по нажатию на главные кнопки звонка.
+    Array.prototype.forEach.call(document.querySelectorAll('.btn--call, .dock__call'), function (btn) {
+      btn.addEventListener('pointerdown', function () {
+        btn.classList.remove('is-pressed');
+        void btn.offsetWidth;
+        btn.classList.add('is-pressed');
+      });
+      btn.addEventListener('animationend', function () { btn.classList.remove('is-pressed'); });
+    });
+
+    // 4. Заявка из карточки услуги: в мессенджер — с готовым текстом.
+    Array.prototype.forEach.call(document.querySelectorAll('.offer__cta[data-messenger]'), function (a) {
+      var msg = 'Здравствуйте! Подскажите по стоимости: ' + a.dataset.service;
+      a.href = a.href + (a.href.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
+    });
+  })();
+  </script>
 </body>
 </html>

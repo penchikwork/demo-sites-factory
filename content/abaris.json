@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "Сеть автосервисов по ремонту автомобилей и продаже автозапчастей",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "Молодёжная улица, 74 ст3",
   "address_note": "",
   "hours_lines": [

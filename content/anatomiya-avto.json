@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "Молодёжная улица, 12",
   "address_note": "1 этаж",
   "hours_lines": [

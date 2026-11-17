@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "Автосервис полного цикла и магазин запчастей",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "Харьковская улица, 77",
   "address_note": "1 этаж",
   "hours_lines": [

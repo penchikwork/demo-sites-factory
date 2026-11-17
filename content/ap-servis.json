@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "Автотехцентр",
   "city": "Москва",
+  "timezone": "Europe/Moscow",
   "address": "Остаповский проезд, 6 ст1",
   "address_note": "1 этаж",
   "hours_lines": [

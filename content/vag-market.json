@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "Магазин-сервис",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "Московский тракт, 118 ст11",
   "address_note": "",
   "hours_lines": [

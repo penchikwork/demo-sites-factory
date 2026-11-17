@@ -11,6 +11,7 @@
   "category": "Автосервис",
   "tagline": "Торгово-сервисный центр",
   "city": "Тюмень",
+  "timezone": "Asia/Yekaterinburg",
   "address": "Широтная улица, 196/1",
   "address_note": "",
   "hours_lines": [
