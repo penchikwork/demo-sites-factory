@@ -234,6 +234,24 @@ a:focus-visible {
   background: var(--hazard);
 }
 
+/* Схема автомобиля справа за текстом: тонкие линии, гаснет к левому краю */
+.sign__art {
+  position: absolute;
+  z-index: -1;
+  top: 58px;
+  right: -26px;
+  width: 300px;
+  height: auto;
+  opacity: 0.5;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 40%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 40%);
+}
+
+@media (min-width: 640px) {
+  .sign__art { top: 36px; right: -10px; width: 400px; opacity: 0.65; }
+}
+
 .sign__top {
   display: flex;
   align-items: center;
@@ -600,6 +618,9 @@ a:focus-visible {
 
 .offer {
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
   padding: 16px var(--card-pad);
   background: var(--card);
   border: 1px solid var(--rule);
@@ -639,6 +660,45 @@ a:focus-visible {
     box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.25), 0 10px 30px -14px rgba(249, 115, 22, 0.45);
   }
   .offer:hover .offer__cta { text-decoration: underline; text-underline-offset: 0.2em; }
+}
+
+/* Бейдж услуги: техническая иконка на стальной плитке с оранжевым кантом */
+.offer__badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: var(--radius-btn);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(160deg, rgba(249, 115, 22, 0.16), rgba(249, 115, 22, 0.04));
+  color: var(--accent);
+  transition: border-color 0.25s ease-out, background-color 0.25s ease-out;
+}
+
+/* метка в углу, как на заводской бирке */
+.offer__badge::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.offer__icon { display: block; width: 28px; height: 28px; }
+
+.offer__body { flex: 1 1 auto; min-width: 0; }
+
+@media (hover: hover) {
+  .offer:hover .offer__badge { border-color: var(--accent); }
 }
 
 /* название слева, цена справа; если тесно — цена уходит под название */
@@ -682,6 +742,77 @@ a:focus-visible {
   color: var(--text-muted);
   font-size: var(--fs-s);
   line-height: 1.45;
+}
+
+/* ---------- Как проходит работа: шаги с крупными номерами ---------- */
+.steps {
+  position: relative;
+  display: grid;
+  gap: 0;
+  counter-reset: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 14px;
+  padding: 0 0 22px;
+}
+
+/* вертикальная линия между номерами */
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 50px;
+  bottom: 6px;
+  left: 31px;
+  border-left: 1px dashed var(--rule-strong);
+}
+
+.step__num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.step__body {
+  padding: 14px var(--card-pad) 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  background: var(--card);
+}
+
+.step__title {
+  font-size: var(--fs-l);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.step__text {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: var(--fs-s);
+  line-height: 1.45;
+}
+
+@supports not (-webkit-text-stroke: 1px black) {
+  .step__num { color: var(--accent); }
+}
+
+@media (min-width: 560px) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .step { grid-template-columns: 1fr; gap: 8px; padding: 0; }
+  .step:not(:last-child)::before { display: none; }
+  .step__num { text-align: left; font-size: 4rem; }
+  .step__body { height: 100%; }
 }
 
 /* ---------- Что хвалят клиенты (пересказ, без имён) ---------- */
@@ -865,6 +996,9 @@ a.contacts__value {
 /* соседние карточки — с небольшой задержкой друг за другом */
 .offers .reveal:nth-child(2), .praise .reveal:nth-child(2) { transition-delay: 60ms; }
 .offers .reveal:nth-child(3), .praise .reveal:nth-child(3) { transition-delay: 120ms; }
+.steps .reveal:nth-child(2) { transition-delay: 80ms; }
+.steps .reveal:nth-child(3) { transition-delay: 160ms; }
+.steps .reveal:nth-child(4) { transition-delay: 240ms; }
 
 /* ---------- Заглушка корня сайта ---------- */
 .stub {

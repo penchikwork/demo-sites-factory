@@ -143,7 +143,34 @@ function prepare(data, file) {
   for (const key of ["prices", "services"]) {
     if (Array.isArray(data[key])) data[key] = data[key].map((p) => (p.price ? { ...p, price: nbsp(p.price) } : p));
   }
+  // Иконка-бейдж услуги — по ключевым словам в названии (оформление, не данные).
+  if (Array.isArray(data.services)) {
+    data.services = data.services.map((sv) => ({ ...sv, icon: sv.icon || serviceIcon(sv.title) }));
+  }
   return data;
+}
+
+// Порядок важен: «Замена масла в АКПП» — КПП, а не масло; «Диагностика подвески» — диагностика.
+const SERVICE_ICONS = [
+  ['diagnostics', /диагност|вибростенд/i],
+  ['transmission', /акпп|мкпп|кпп|сцеплен|кардан|трансмис|вариатор/i],
+  ['brakes', /тормоз|колод/i],
+  ['tires', /шин|колёс|колес/i],
+  ['climate', /кондиц|климат|отопит|печк|охлажд/i],
+  ['wash', /мойк|химчист|полиров/i],
+  ['electrics', /электр|стартер|генератор|сигнализ|автооптик/i],
+  ['suspension', /ходов|подвес|амортиз|рулев|сход|развал|стоек|ступиц/i],
+  ['exhaust', /выхлоп|катализ/i],
+  ['tuning', /тюнинг/i],
+  ['body', /кузов|сварочн|окраск/i],
+  ['oil', /масл|фильтр/i],
+  ['engine', /двигат|двс|гбц|грм|инжектор|свеч/i],
+  ['parts', /запчаст/i],
+  ['car', /легковой автосервис/i],
+];
+function serviceIcon(title) {
+  const hit = SERVICE_ICONS.find(([, re]) => re.test(title || ''));
+  return hit ? hit[0] : 'service';
 }
 
 function verify(html, file) {

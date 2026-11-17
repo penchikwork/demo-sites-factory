@@ -249,6 +249,24 @@ a:focus-visible {
   background: var(--hazard);
 }
 
+/* Схема автомобиля справа за текстом: тонкие линии, гаснет к левому краю */
+.sign__art {
+  position: absolute;
+  z-index: -1;
+  top: 58px;
+  right: -26px;
+  width: 300px;
+  height: auto;
+  opacity: 0.5;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 40%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 40%);
+}
+
+@media (min-width: 640px) {
+  .sign__art { top: 36px; right: -10px; width: 400px; opacity: 0.65; }
+}
+
 .sign__top {
   display: flex;
   align-items: center;
@@ -615,6 +633,9 @@ a:focus-visible {
 
 .offer {
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
   padding: 16px var(--card-pad);
   background: var(--card);
   border: 1px solid var(--rule);
@@ -654,6 +675,45 @@ a:focus-visible {
     box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.25), 0 10px 30px -14px rgba(249, 115, 22, 0.45);
   }
   .offer:hover .offer__cta { text-decoration: underline; text-underline-offset: 0.2em; }
+}
+
+/* Бейдж услуги: техническая иконка на стальной плитке с оранжевым кантом */
+.offer__badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: var(--radius-btn);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(160deg, rgba(249, 115, 22, 0.16), rgba(249, 115, 22, 0.04));
+  color: var(--accent);
+  transition: border-color 0.25s ease-out, background-color 0.25s ease-out;
+}
+
+/* метка в углу, как на заводской бирке */
+.offer__badge::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.offer__icon { display: block; width: 28px; height: 28px; }
+
+.offer__body { flex: 1 1 auto; min-width: 0; }
+
+@media (hover: hover) {
+  .offer:hover .offer__badge { border-color: var(--accent); }
 }
 
 /* название слева, цена справа; если тесно — цена уходит под название */
@@ -697,6 +757,77 @@ a:focus-visible {
   color: var(--text-muted);
   font-size: var(--fs-s);
   line-height: 1.45;
+}
+
+/* ---------- Как проходит работа: шаги с крупными номерами ---------- */
+.steps {
+  position: relative;
+  display: grid;
+  gap: 0;
+  counter-reset: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 14px;
+  padding: 0 0 22px;
+}
+
+/* вертикальная линия между номерами */
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 50px;
+  bottom: 6px;
+  left: 31px;
+  border-left: 1px dashed var(--rule-strong);
+}
+
+.step__num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.step__body {
+  padding: 14px var(--card-pad) 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  background: var(--card);
+}
+
+.step__title {
+  font-size: var(--fs-l);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.step__text {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: var(--fs-s);
+  line-height: 1.45;
+}
+
+@supports not (-webkit-text-stroke: 1px black) {
+  .step__num { color: var(--accent); }
+}
+
+@media (min-width: 560px) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .step { grid-template-columns: 1fr; gap: 8px; padding: 0; }
+  .step:not(:last-child)::before { display: none; }
+  .step__num { text-align: left; font-size: 4rem; }
+  .step__body { height: 100%; }
 }
 
 /* ---------- Что хвалят клиенты (пересказ, без имён) ---------- */
@@ -880,6 +1011,9 @@ a.contacts__value {
 /* соседние карточки — с небольшой задержкой друг за другом */
 .offers .reveal:nth-child(2), .praise .reveal:nth-child(2) { transition-delay: 60ms; }
 .offers .reveal:nth-child(3), .praise .reveal:nth-child(3) { transition-delay: 120ms; }
+.steps .reveal:nth-child(2) { transition-delay: 80ms; }
+.steps .reveal:nth-child(3) { transition-delay: 160ms; }
+.steps .reveal:nth-child(4) { transition-delay: 240ms; }
 
 /* ---------- Заглушка корня сайта ---------- */
 .stub {
@@ -931,6 +1065,23 @@ a.contacts__value {
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
     <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <!-- Технические иконки услуг (32×32): категорию выбирает build.js по названию -->
+    <symbol id="s-engine" viewBox="0 0 32 32"><path d="M10 9h12M12 9V6.5h8V9"/><path d="M7 12h3V9h12v3h2.5l2 3H28v6h-1.5l-2 3H10l-3-3H5v-6h2z"/><circle cx="16" cy="18" r="2.6"/><path d="M12 14.5v1M20 14.5v1"/></symbol>
+    <symbol id="s-oil" viewBox="0 0 32 32"><rect x="4.5" y="13" width="14" height="10" rx="1.5"/><path d="M8.5 13v-2.5h6V13M18.5 15.5l7.5-3.5v2.2l-7.5 5.3"/><path d="M26 21.6c0 1.4-.9 2.4-2 2.4s-2-1-2-2.4c0-1.4 2-3.6 2-3.6s2 2.2 2 3.6z"/></symbol>
+    <symbol id="s-suspension" viewBox="0 0 32 32"><path d="M10.5 4.5h11M16 4.5v4.5"/><path d="M10 9l12 2.5L10 14l12 2.5L10 19l12 2.5"/><path d="M16 21.5v3"/><circle cx="16" cy="26.5" r="2"/></symbol>
+    <symbol id="s-diagnostics" viewBox="0 0 32 32"><rect x="4" y="5.5" width="24" height="16" rx="2"/><path d="M7.5 15h3.5l2-5 3 9 2-6 1.5 2H24.5"/><path d="M12 26.5h8M16 21.5v5"/></symbol>
+    <symbol id="s-electrics" viewBox="0 0 32 32"><rect x="4" y="10" width="24" height="15" rx="2"/><path d="M9 10V7.5h4V10M19 10V7.5h4V10"/><path d="M17 13l-3.5 5h5L15 23"/></symbol>
+    <symbol id="s-brakes" viewBox="0 0 32 32"><circle cx="14.5" cy="17.5" r="9.5"/><circle cx="14.5" cy="17.5" r="3"/><path d="M14.5 11.2v.01M20.8 17.5v.01M14.5 23.8v.01M8.2 17.5v.01"/><path d="M20.5 6.5a12.5 12.5 0 0 1 6.6 8l-3.6 1a8.8 8.8 0 0 0-4.4-5.6z"/></symbol>
+    <symbol id="s-tires" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="6.5"/><circle cx="16" cy="16" r="1.8"/><path d="M16 4v2.5M16 25.5V28M4 16h2.5M25.5 16H28M7.5 7.5l1.8 1.8M22.7 22.7l1.8 1.8M7.5 24.5l1.8-1.8M22.7 9.3l1.8-1.8"/></symbol>
+    <symbol id="s-climate" viewBox="0 0 32 32"><path d="M16 4v24M5.6 10l20.8 12M5.6 22l20.8-12"/><path d="M13 6.5l3 2.5 3-2.5M13 25.5l3-2.5 3 2.5M5.9 14.2l3.6-1.3-.6-3.8M26.1 17.8l-3.6 1.3.6 3.8M5.9 17.8l3.6 1.3-.6 3.8M26.1 14.2l-3.6-1.3.6-3.8"/></symbol>
+    <symbol id="s-transmission" viewBox="0 0 32 32"><circle cx="8" cy="7" r="2"/><circle cx="16" cy="7" r="2"/><circle cx="24" cy="7" r="2"/><circle cx="8" cy="25" r="2"/><circle cx="16" cy="25" r="2"/><path d="M8 9v14M16 9v14M24 9v7H8"/></symbol>
+    <symbol id="s-body" viewBox="0 0 32 32"><path d="M4 21l2.5-7A3 3 0 0 1 9.3 12h13.4a3 3 0 0 1 2.8 2L28 21v4.5a1 1 0 0 1-1 1h-2.5a1 1 0 0 1-1-1V24h-15v1.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M4 21h24M8.5 18h3M20.5 18h3"/><path d="M25 3.5l1 2.2 2.2 1-2.2 1-1 2.3-1-2.3-2.2-1 2.2-1z"/></symbol>
+    <symbol id="s-exhaust" viewBox="0 0 32 32"><rect x="6" y="11.5" width="14" height="10" rx="5"/><path d="M20 16.5h6M3 16.5h3"/><path d="M27.5 12c-1.2-1.2 1.2-2.3 0-3.5M24.5 12c-1.2-1.2 1.2-2.3 0-3.5"/></symbol>
+    <symbol id="s-wash" viewBox="0 0 32 32"><path d="M10 3.5s-2.5 3-2.5 4.6a2.5 2.5 0 0 0 5 0C12.5 6.5 10 3.5 10 3.5zM22 3.5s-2.5 3-2.5 4.6a2.5 2.5 0 0 0 5 0C24.5 6.5 22 3.5 22 3.5zM16 9s-2 2.4-2 3.7a2 2 0 0 0 4 0C18 11.4 16 9 16 9z"/><path d="M4 25.5l2-5a2.5 2.5 0 0 1 2.3-1.5h15.4a2.5 2.5 0 0 1 2.3 1.5l2 5V28H4z"/></symbol>
+    <symbol id="s-tuning" viewBox="0 0 32 32"><path d="M5 22a11 11 0 1 1 22 0"/><path d="M16 22l6.5-7"/><circle cx="16" cy="22" r="2"/><path d="M8.2 14.6l1.6 1.1M16 11v2M23.8 14.6l-1.6 1.1M5 26.5h22"/></symbol>
+    <symbol id="s-parts" viewBox="0 0 32 32"><path d="M16 4l10.4 6v12L16 28 5.6 22V10z"/><circle cx="16" cy="16" r="4.5"/></symbol>
+    <symbol id="s-car" viewBox="0 0 32 32"><path d="M3.5 21.5v-4l3.5-1.2 3.5-5.3h11l4.5 5.3 3.5 1.2v4h-2.5M7 21.5H3.5M12.5 21.5h7.5"/><circle cx="9.8" cy="22" r="2.6"/><circle cx="22.5" cy="22" r="2.6"/><path d="M16 11v5.3M7 16.3h20"/></symbol>
+    <symbol id="s-service" viewBox="0 0 32 32"><path d="M19.6 8.4a1.3 1.3 0 0 0 0 1.9l2.1 2.1a1.3 1.3 0 0 0 1.9 0l5-5a8 8 0 0 1-10.6 10.6l-9.2 9.2a2.8 2.8 0 0 1-4-4l9.2-9.2A8 8 0 0 1 24.6 3.4z"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
   </svg>
 
@@ -944,6 +1095,31 @@ a.contacts__value {
     <!-- Первый экран: стальная табличка на воротах бокса -->
     <header class="sign">
       <div class="sign__plate">
+        <!-- Схема автомобиля: чистый SVG, декоративная (за текстом справа) -->
+        <svg class="sign__art" viewBox="0 0 420 200" width="420" height="200" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <g stroke="#3A4250" stroke-width="1">
+            <path d="M0 172h420" />
+            <path d="M100 112v74M320 112v74" stroke-dasharray="3 5" />
+            <path d="M100 186h220M100 182v8M320 182v8" />
+          </g>
+          <g stroke="#59616D" stroke-width="1.6">
+            <path d="M22 140v-24q2-14 20-18l66-8 42-32q8-6 22-7l90-1q18 0 30 8l40 28 52 10q16 4 18 20v18q0 6-6 6h-46a30 30 0 0 0-60 0H130a30 30 0 0 0-60 0H28q-6 0-6-6z" />
+            <path d="M116 88l36-26q6-4 16-4h46v30zM222 58h36q16 0 26 8l26 22h-88z" />
+            <path d="M214 58v70M108 92l222-3" />
+            <path d="M386 104h12M24 110h10" />
+          </g>
+          <g stroke="#6B7380" stroke-width="1.4">
+            <circle cx="100" cy="146" r="24" /><circle cx="100" cy="146" r="14" /><circle cx="100" cy="146" r="3.5" />
+            <circle cx="320" cy="146" r="24" /><circle cx="320" cy="146" r="14" /><circle cx="320" cy="146" r="3.5" />
+          </g>
+          <g stroke="#F97316" stroke-width="1.6">
+            <path d="M306 128l6-6M314 132l6-6" opacity=".7" />
+            <rect x="300" y="96" width="70" height="30" rx="3" stroke-dasharray="4 4" opacity=".75" />
+            <path d="M335 96V70h40" opacity=".75" /><circle cx="379" cy="70" r="4" />
+            <path d="M86 140a14 14 0 0 1 8-10" stroke-width="3" opacity=".85" />
+            <path d="M306 140a14 14 0 0 1 8-10" stroke-width="3" opacity=".85" />
+          </g>
+        </svg>
         <div class="sign__top">
           <span class="sign__picto"><svg class="icon" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-wrench"/></svg></span>
           <p class="sign__category">Автосервис</p>
@@ -1071,6 +1247,8 @@ a.contacts__value {
       <ul class="offers">
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-oil"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Замена моторного масла и фильтра</h3>
             <p class="offer__price">от 2 268 ₽</p>
@@ -1082,9 +1260,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Замена моторного масла и фильтра</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-suspension"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Проверка сход-развала</h3>
             <p class="offer__price">от 2 800 ₽</p>
@@ -1097,9 +1278,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Проверка сход-развала</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-brakes"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Замена дисковых колодок</h3>
             <p class="offer__price">от 3 200 ₽</p>
@@ -1112,9 +1296,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Замена дисковых колодок</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-climate"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Замена охлаждающей жидкости</h3>
             <p class="offer__price">от 3 400 ₽</p>
@@ -1127,9 +1314,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Замена охлаждающей жидкости</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-tires"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Шиномонтаж четырёх колёс</h3>
             <p class="offer__price">от 4 600 ₽</p>
@@ -1142,9 +1332,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Шиномонтаж четырёх колёс</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-tires"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Хранение шин на 6 месяцев</h3>
             <p class="offer__price">от 5 700 ₽</p>
@@ -1157,9 +1350,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Хранение шин на 6 месяцев</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-transmission"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Частичная замена масла в АКПП</h3>
             <p class="offer__price">от 10 800 ₽</p>
@@ -1172,9 +1368,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Частичная замена масла в АКПП</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-climate"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Промывка радиатора печки</h3>
             <p class="offer__price">от 14 375 ₽</p>
@@ -1186,9 +1385,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Промывка радиатора печки</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-suspension"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Ремонт ходовой части автомобиля</h3>
             <p class="offer__price offer__price--ask">по запросу</p>
@@ -1201,9 +1403,12 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Ремонт ходовой части автомобиля</span>
           </a>
 
+          </div>
         </li>
 
         <li class="offer reveal">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-diagnostics"/></svg></span>
+          <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Компьютерная диагностика автомобилей</h3>
             <p class="offer__price offer__price--ask">по запросу</p>
@@ -1215,10 +1420,52 @@ a.contacts__value {
             Узнать точную цену<span class="visually-hidden">: Компьютерная диагностика автомобилей</span>
           </a>
 
+          </div>
         </li>
 
       </ul>
       <p class="section__note">Цены «от» из прайса 2ГИС, обновлён 5 ноября 2026. Точную стоимость уточняйте по телефону.</p>
+    </section>
+
+    <!-- Как проходит работа: шаги собраны из фактов о сервисе (гарантия — только из источника) -->
+
+    <section class="section" aria-labelledby="h-steps">
+      <h2 class="section__title" id="h-steps">Как проходит работа</h2>
+      <ol class="steps">
+
+        <li class="step reveal">
+          <span class="step__num" aria-hidden="true">01</span>
+          <div class="step__body">
+            <h3 class="step__title">Звонок</h3>
+            <p class="step__text">Позвоните по номеру выше и уточните удобное время.</p>
+          </div>
+        </li>
+
+        <li class="step reveal">
+          <span class="step__num" aria-hidden="true">02</span>
+          <div class="step__body">
+            <h3 class="step__title">Диагностика</h3>
+            <p class="step__text">Компьютерная диагностика автомобиля, стоимость — по запросу.</p>
+          </div>
+        </li>
+
+        <li class="step reveal">
+          <span class="step__num" aria-hidden="true">03</span>
+          <div class="step__body">
+            <h3 class="step__title">Ремонт с гарантией</h3>
+            <p class="step__text">Гарантия на работы 6–12 месяцев — по данным сайта компании.</p>
+          </div>
+        </li>
+
+        <li class="step reveal">
+          <span class="step__num" aria-hidden="true">04</span>
+          <div class="step__body">
+            <h3 class="step__title">Выдача авто</h3>
+            <p class="step__text">Забрать автомобиль можно в часы работы: ежедневно 9:00–21:00.</p>
+          </div>
+        </li>
+
+      </ol>
     </section>
 
     <!-- Что хвалят клиенты: только пересказ отзывов 2ГИС, без имён авторов -->
