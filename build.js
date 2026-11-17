@@ -145,10 +145,27 @@ function prepare(data, file) {
   }
   // Иконка-бейдж услуги — по ключевым словам в названии (оформление, не данные).
   if (Array.isArray(data.services)) {
-    data.services = data.services.map((sv) => ({ ...sv, icon: sv.icon || serviceIcon(sv.title) }));
+    data.services = data.services.map((sv) => {
+      const icon = sv.icon || serviceIcon(sv.title);
+      return { ...sv, icon, group: SERVICE_GROUPS.find(([, , icons]) => icons.includes(icon))[0] };
+    });
   }
+  // Табы фильтра: только группы, где есть услуги; сами табы — если групп хотя бы две.
+  const groups = SERVICE_GROUPS.map(([id, label]) => ({
+    id, label, count: String((data.services || []).filter((sv) => sv.group === id).length),
+  })).filter((g) => g.count !== '0');
+  data.service_groups = groups.length >= 2 ? groups : [];
+  data.services_count = String((data.services || []).length);
   return data;
 }
+
+// Группы для табов «Услуги и цены» — по иконке услуги.
+const SERVICE_GROUPS = [
+  ['to', 'ТО и диагностика', ['diagnostics', 'oil', 'service', 'climate', 'car']],
+  ['engine', 'Двигатель и КПП', ['engine', 'transmission', 'exhaust', 'tuning']],
+  ['chassis', 'Подвеска и тормоза', ['suspension', 'brakes', 'tires']],
+  ['other', 'Кузов и другое', ['body', 'wash', 'electrics', 'parts']],
+];
 
 // Порядок важен: «Замена масла в АКПП» — КПП, а не масло; «Диагностика подвески» — диагностика.
 const SERVICE_ICONS = [
