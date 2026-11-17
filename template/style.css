@@ -1,10 +1,11 @@
 /* ==========================================================================
    Эталонный шаблон демо-сайта автосервиса.
    build.js встраивает этот файл в <style> страницы, а шрифты — как data: URI.
-   Идея: первый экран — табличка-знак «Техобслуживание» (синий, белая кайма,
-   пиктограмма ключа). Жёлтый — цвет временных знаков — отдан только плашке
-   «Демо-концепт». Всё остальное спокойное: график как табличка на двери,
-   цены как прейскурант с отточиями, отзывы пересказом.
+   Идея: тёмный графитовый цех. Первый экран — стальная табличка на воротах
+   бокса: заклёпки по углам, полоса предупредительной разметки по кромке,
+   крупное узкое название. Единственный акцент — сигнальный оранжевый #F97316;
+   синего цвета нет нигде. Плашки «Демо-концепт» обведены той же разметкой,
+   как временное ограждение.
    Мобильная вёрстка в приоритете: 360–414 px без горизонтальной прокрутки.
    ========================================================================== */
 
@@ -46,21 +47,21 @@
   src: url(fonts/sofia-sans-extra-condensed-latin-800-normal.woff2) format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
+
 /* ---------- Токены ---------- */
 :root {
-  /* Цвет */
-  --sign: #1F4E9E;          /* синий дорожного знака: кнопки, акценты */
-  --sign-pressed: #173C7A;
-  --sign-soft: #DCE6F6;     /* второстепенный текст на синем, 6.3:1 */
-  --sign-tint: #E8EEF8;     /* подложка иконок в карточках */
-  --ink: #1C2127;           /* основной текст, 16:1 на белом */
-  --ink-muted: #55606B;     /* второстепенный текст, 6.4:1 на белом */
-  --paper: #FFFFFF;         /* карточки */
-  --concrete: #F1F3F6;      /* фон страницы */
-  --tile: #E6EAEF;          /* плитки графика */
-  --rule: #DCE1E7;          /* границы карточек и разделители */
-  --rule-strong: #7A8593;   /* отточия в прейскуранте, 3.7:1 */
-  --temp: #FFD23F;          /* жёлтый временных знаков — только плашки демо */
+  /* Цвет: графит цеха, сталь, сигнальный оранжевый. Синего нет нигде. */
+  --bg: #0E1013;            /* пол цеха: фон страницы */
+  --card: #171A1F;          /* стальная плита: карточки */
+  --card-raised: #1F2329;   /* плитки внутри карточек, нажатие */
+  --rule: #2B3038;          /* швы и разделители */
+  --rule-strong: #4A515B;   /* контуры кнопок, отточия */
+  --text: #FFFFFF;          /* основной текст: 18:1 на фоне, 16.8:1 на карточке */
+  --text-muted: #A7ADB5;    /* второстепенный: 8.4:1 на фоне, 7.8:1 на карточке */
+  --accent: #F97316;        /* сигнальный оранжевый: 7:1 на фоне, 6.5:1 на карточке */
+  --accent-pressed: #DB6210;
+  --on-accent: #0E1013;     /* текст на оранжевом: 7:1 (белый дал бы только 2.8:1) */
+  --accent-tint: rgba(249, 115, 22, 0.12);
 
   /* Шрифт */
   --font-text: "Sofia Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -72,20 +73,22 @@
   --fs-m: 1.0625rem;   /* 17 — основной */
   --fs-l: 1.1875rem;   /* 19 */
   --fs-h3: 1.25rem;    /* 20 */
-  --fs-h2: 2.125rem;   /* 34 */
+  --fs-h2: 2.25rem;    /* 36 */
 
   /* Отступы: шаг 4 px */
   --gutter: 16px;
-  --section-gap: 40px;
+  --section-gap: 44px;
   --card-pad: 18px;
 
-  /* Скругления по иерархии: знак > карточка > кнопка > плитка */
-  --radius-sign: 20px;
-  --radius-card: 16px;
-  --radius-btn: 12px;
-  --radius-tile: 10px;
+  /* Скругления по иерархии, все жёсткие — металл, не пластик */
+  --radius-plate: 8px;
+  --radius-card: 6px;
+  --radius-btn: 4px;
+  --radius-tile: 3px;
 
-  --shadow-card: 0 1px 2px rgba(28, 33, 39, 0.06);
+  /* Предупредительная разметка: оранжевый/графит под 45° */
+  --hazard: repeating-linear-gradient(-45deg, var(--accent) 0 10px, var(--bg) 10px 20px);
+
   --measure: 600px;
 }
 
@@ -99,13 +102,14 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background: var(--concrete);
+  background: var(--bg);
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
-  background: var(--concrete);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-text);
   font-size: var(--fs-m);
   line-height: 1.55;
@@ -116,15 +120,15 @@ body {
 h1, h2, h3, p, ul, ol { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 
-a { color: var(--sign); text-underline-offset: 0.18em; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
 
 a:focus-visible {
-  outline: 3px solid var(--sign);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
-::selection { background: var(--temp); color: var(--ink); }
+::selection { background: var(--accent); color: var(--on-accent); }
 
 /* Все иконки — фиксированного размера; атрибуты width/height в разметке дублируют это без CSS */
 .icon {
@@ -149,16 +153,23 @@ a:focus-visible {
 }
 
 .card {
-  background: var(--paper);
+  background: var(--card);
   border: 1px solid var(--rule);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
 }
 
 /* ---------- Верхняя плашка «Демо-концепт» ---------- */
 .demo-bar {
-  background: var(--temp);
-  color: var(--ink);
+  background: var(--card);
+  color: var(--text);
+  border-bottom: 1px solid var(--rule);
+}
+
+.demo-bar::before {
+  content: "";
+  display: block;
+  height: 6px;
+  background: var(--hazard);
 }
 
 .demo-bar__text {
@@ -170,20 +181,36 @@ a:focus-visible {
   line-height: 1.3;
 }
 
-/* ---------- Первый экран: табличка-знак ---------- */
+/* ---------- Первый экран: стальная табличка на воротах бокса ---------- */
 .sign {
   max-width: var(--measure);
-  margin: 12px auto 0;
+  margin: 14px auto 0;
   padding: 0 12px;
 }
 
 .sign__plate {
-  padding: 24px 20px 20px;
-  border-radius: var(--radius-sign);
-  background: var(--sign);
-  color: var(--paper);
-  /* белая кайма внутри, как у дорожного знака */
-  box-shadow: inset 0 0 0 5px var(--sign), inset 0 0 0 7px var(--paper), 0 8px 24px rgba(31, 78, 158, 0.18);
+  position: relative;
+  padding: 30px 22px 22px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-plate);
+  /* четыре заклёпки по углам и едва заметный шлиф стали */
+  background:
+    radial-gradient(circle at 14px 14px, #3A4049 0 3px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 14px) 14px, #3A4049 0 3px, transparent 3.5px),
+    radial-gradient(circle at 14px calc(100% - 14px), #3A4049 0 3px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #3A4049 0 3px, transparent 3.5px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px),
+    var(--card);
+  overflow: hidden;
+}
+
+/* оранжевая полоса разметки по верхней кромке таблички */
+.sign__plate::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 8px;
+  background: var(--hazard);
 }
 
 .sign__top {
@@ -198,27 +225,27 @@ a:focus-visible {
   flex: none;
   width: 52px;
   height: 52px;
-  border-radius: 10px;
-  background: var(--paper);
-  color: var(--ink);
+  border-radius: var(--radius-btn);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .sign__picto .icon { width: 30px; height: 30px; }
 
 .sign__category {
-  color: var(--sign-soft);
+  color: var(--text-muted);
   font-size: var(--fs-l);
   font-weight: 600;
   line-height: 1.2;
 }
 
 .sign__name {
-  margin-top: 24px;
+  margin-top: 22px;
   font-family: var(--font-display);
-  font-size: clamp(3.25rem, 16vw, 4.75rem);
+  font-size: clamp(3.5rem, 17vw, 5rem);
   font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: 0.005em;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
   /* без переносов с дефисом: рвём слово только если оно не влезает в строку */
   overflow-wrap: anywhere;
   text-wrap: balance;
@@ -226,28 +253,30 @@ a:focus-visible {
 
 .sign__tagline {
   margin-top: 12px;
-  color: var(--sign-soft);
+  color: var(--text-muted);
   font-size: var(--fs-l);
   line-height: 1.35;
 }
 
 .sign__facts {
   display: grid;
-  gap: 10px;
-  margin-top: 22px;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
 }
 
 .sign__fact {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
   line-height: 1.35;
 }
 
 .sign__fact .icon {
   margin-top: 1px;
-  color: var(--sign-soft);
+  color: var(--accent);
 }
 
 .sign__fact > span { min-width: 0; overflow-wrap: anywhere; }
@@ -260,8 +289,6 @@ a:focus-visible {
   gap: 10px;
   margin-top: 24px;
 }
-
-.sign a:focus-visible { outline-color: var(--temp); }
 
 /* ---------- Кнопки ---------- */
 .btn {
@@ -280,31 +307,30 @@ a:focus-visible {
   text-decoration: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
 .btn .icon { width: 22px; height: 22px; }
 
-/* Главное действие на синем: белая кнопка, 8:1 */
-.btn--call { background: var(--paper); color: var(--sign); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18); }
-.btn--call:active { background: var(--sign-soft); }
+.btn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
-/* Второе действие на синем: контур */
-.btn--on-sign { color: var(--paper); box-shadow: inset 0 0 0 2px var(--sign-soft); }
-.btn--on-sign:active { background: var(--sign-pressed); }
+/* Главное действие: оранжевая кнопка с тёмным текстом, 7:1 */
+.btn--call,
+.btn--solid { background: var(--accent); color: var(--on-accent); }
+.btn--call:active,
+.btn--solid:active { background: var(--accent-pressed); }
 
-/* Нижняя панель */
-.btn--solid { background: var(--sign); color: var(--paper); }
-.btn--solid:active { background: var(--sign-pressed); }
-
-.btn--ghost { background: var(--concrete); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule); }
-.btn--ghost:active { background: var(--tile); }
+/* Второе действие: стальной контур */
+.btn--on-sign,
+.btn--ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--rule-strong); }
+.btn--on-sign:active,
+.btn--ghost:active { background: var(--card-raised); box-shadow: inset 0 0 0 1.5px var(--text-muted); }
 
 @media (hover: hover) {
-  .btn--call:hover { background: var(--sign-soft); }
-  .btn--on-sign:hover { background: var(--sign-pressed); }
-  .btn--solid:hover { background: var(--sign-pressed); }
-  .btn--ghost:hover { background: var(--tile); }
+  .btn--call:hover,
+  .btn--solid:hover { background: var(--accent-pressed); }
+  .btn--on-sign:hover,
+  .btn--ghost:hover { background: var(--card-raised); box-shadow: inset 0 0 0 1.5px var(--text-muted); }
 }
 
 /* ---------- Секции ---------- */
@@ -314,7 +340,11 @@ a:focus-visible {
   padding: var(--section-gap) var(--gutter) 0;
 }
 
+/* заголовок раздела с короткой оранжевой меткой, как маркировка на станке */
 .section__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 16px;
   font-family: var(--font-display);
   font-size: var(--fs-h2);
@@ -323,9 +353,17 @@ a:focus-visible {
   text-wrap: balance;
 }
 
+.section__title::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 0.8em;
+  background: var(--accent);
+}
+
 .section__note {
   margin-top: 12px;
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-size: var(--fs-s);
   line-height: 1.4;
 }
@@ -345,13 +383,14 @@ a:focus-visible {
   min-width: 0;
   padding: 10px 2px 12px;
   border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
   border-radius: var(--radius-tile);
-  background: var(--paper);
+  background: var(--card);
   text-align: center;
 }
 
 .week__name {
-  color: var(--sign);
+  color: var(--accent);
   font-size: var(--fs-s);
   font-weight: 700;
   line-height: 1.2;
@@ -365,16 +404,17 @@ a:focus-visible {
 }
 
 .week__day--closed {
-  background: repeating-linear-gradient(-45deg, var(--tile) 0 6px, var(--paper) 6px 12px);
-  color: var(--ink-muted);
+  border-top-color: var(--rule-strong);
+  background: repeating-linear-gradient(-45deg, var(--card-raised) 0 6px, var(--card) 6px 12px);
+  color: var(--text-muted);
 }
 
-.week__day--closed .week__name { color: var(--ink-muted); }
+.week__day--closed .week__name { color: var(--text-muted); }
 
 /* ---------- Услуги: карточки ---------- */
 .services {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .service {
@@ -382,10 +422,9 @@ a:focus-visible {
   align-items: flex-start;
   gap: 14px;
   padding: var(--card-pad);
-  background: var(--paper);
+  background: var(--card);
   border: 1px solid var(--rule);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
 }
 
 .service__icon {
@@ -394,9 +433,9 @@ a:focus-visible {
   flex: none;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-tile);
-  background: var(--sign-tint);
-  color: var(--sign);
+  border-radius: var(--radius-btn);
+  background: var(--accent-tint);
+  color: var(--accent);
 }
 
 .service__icon .icon { width: 22px; height: 22px; }
@@ -416,7 +455,7 @@ a:focus-visible {
 }
 
 .service__text {
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-size: var(--fs-s);
   line-height: 1.45;
 }
@@ -435,7 +474,7 @@ a:focus-visible {
   padding: 12px 0;
 }
 
-.pricelist__row + .pricelist__row { border-top: 1px solid var(--concrete); }
+.pricelist__row + .pricelist__row { border-top: 1px solid var(--rule); }
 
 .pricelist__name {
   flex: 0 1 auto;
@@ -454,6 +493,7 @@ a:focus-visible {
 .pricelist__price {
   flex: none;
   white-space: nowrap; /* цена не рвётся внутри числа; сжимается название */
+  color: var(--accent);
   font-weight: 700;
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
@@ -462,21 +502,20 @@ a:focus-visible {
 /* ---------- Отзывы (пересказ, без имён) ---------- */
 .reviews {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .review {
   padding: var(--card-pad);
   border: 1px solid var(--rule);
-  border-left: 4px solid var(--sign);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius-card);
-  background: var(--paper);
-  box-shadow: var(--shadow-card);
+  background: var(--card);
 }
 
 .review__rating {
   margin-bottom: 6px;
-  color: var(--sign);
+  color: var(--accent);
   font-size: var(--fs-xs);
   font-weight: 700;
 }
@@ -506,7 +545,7 @@ a:focus-visible {
 
 .features__item .icon {
   margin-top: 1px;
-  color: var(--sign);
+  color: var(--accent);
 }
 
 /* ---------- Контакты ---------- */
@@ -527,7 +566,7 @@ a:focus-visible {
 .contacts__row .icon {
   width: 22px;
   height: 22px;
-  color: var(--sign);
+  color: var(--accent);
 }
 
 .contacts__row > span {
@@ -537,18 +576,25 @@ a:focus-visible {
 }
 
 .contacts__label {
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-size: var(--fs-xs);
   line-height: 1.3;
 }
 
 .contacts__value {
+  color: var(--text);
   font-weight: 600;
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
-a.contacts__value { display: inline-block; padding: 6px 0; margin: -6px 0; }
+a.contacts__value {
+  display: inline-block;
+  padding: 6px 0;
+  margin: -6px 0;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
 
 /* ---------- Подвал и нижняя плашка «Демо-концепт» ---------- */
 .footer {
@@ -557,32 +603,34 @@ a.contacts__value { display: inline-block; padding: 6px 0; margin: -6px 0; }
   padding: var(--section-gap) 12px 16px;
 }
 
+/* временное ограждение: рамка из предупредительной разметки */
 .demo-plate {
   display: grid;
   gap: 10px;
   padding: 22px 20px 20px;
-  border-radius: var(--radius-card);
-  background: var(--temp);
-  color: var(--ink);
-  /* чёрная кайма на жёлтом — как у временного знака */
-  box-shadow: inset 0 0 0 5px var(--temp), inset 0 0 0 7px var(--ink);
+  border: 6px solid transparent;
+  border-radius: var(--radius-plate);
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    var(--hazard) border-box;
+  color: var(--text);
 }
 
 .demo-plate__title {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: 1.875rem;
   font-weight: 800;
   line-height: 1;
 }
 
 .demo-plate__text {
+  color: var(--text-muted);
   font-size: var(--fs-s);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
-.demo-plate a { color: var(--ink); font-weight: 700; }
-.demo-plate a:focus-visible { outline-color: var(--ink); }
+.demo-plate a { color: var(--text); font-weight: 700; text-decoration-color: var(--accent); }
 
 /* ---------- Нижняя панель звонка ---------- */
 .dock {
@@ -595,7 +643,9 @@ a.contacts__value { display: inline-block; padding: 6px 0; margin: -6px 0; }
   margin: 0 auto;
   padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--rule);
-  background: var(--paper);
+  background: rgba(14, 16, 19, 0.94);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
 /* ширина кнопок — по содержимому, чтобы обе подписи влезали в строку на 360 px */
@@ -621,14 +671,37 @@ a.contacts__value { display: inline-block; padding: 6px 0; margin: -6px 0; }
   }
 }
 
+/* ---------- Заглушка корня сайта ---------- */
+.stub {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 56px var(--gutter) 0;
+}
+
+.stub__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 13vw, 4rem);
+  font-weight: 800;
+  line-height: 0.95;
+}
+
+.stub__text {
+  margin-top: 16px;
+  max-width: 40ch;
+  color: var(--text-muted);
+  font-size: var(--fs-l);
+  line-height: 1.45;
+}
+
 /* ---------- Шире телефона ---------- */
 @media (min-width: 640px) {
-  .sign { margin-top: 24px; }
-  .sign__plate { padding: 32px 32px 28px; }
+  .sign { margin-top: 28px; }
+  .sign__plate { padding: 40px 36px 30px; }
   .sign__actions { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
   .week__day { padding: 14px 4px 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+  .dock { animation: none !important; }
 }

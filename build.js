@@ -187,38 +187,33 @@ function build() {
   fs.writeFileSync(path.join(SITE_DIR, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
   // GitHub Pages: не обрабатывать сайт Jekyll'ом.
   fs.writeFileSync(path.join(SITE_DIR, '.nojekyll'), '');
-  const index = inlineCss(indexPage(built));
+  const index = inlineCss(indexPage());
   verify(index, 'site/index.html');
   fs.writeFileSync(path.join(SITE_DIR, 'index.html'), index);
   console.log(`✓ site/index.html, site/robots.txt — готово: ${built.length} стр.`);
 }
 
-function indexPage(items) {
-  const links = items
-    .map((d) => `      <li><a href="${escapeHtml(d.slug)}/">${escapeHtml(d.name)}</a></li>`)
-    .join('\n');
+// Корень сайта — заглушка без списка: каждая демо-страница открывается
+// только по своей прямой ссылке (/{slug}/), и сервисы не видят друг друга.
+function indexPage() {
   return `<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <title>Демо-сайты автосервисов</title>
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="yandex" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0E1013">
+  <title>Демо-концепт</title>
   ${LINK_TAG}
-  <style>
-    .index { padding: 0 var(--card-pad); }
-    .index li { font-size: var(--fs-l); font-weight: 600; }
-    .index li + li { border-top: 1px solid var(--rule); }
-    .index a { display: block; padding: 14px 0; }
-  </style>
 </head>
 <body>
   <div class="demo-bar" role="note"><p class="demo-bar__text">${DEMO_TEXT}</p></div>
-  <main class="section">
-    <h1 class="section__title">Демо-сайты автосервисов</h1>
-    <ul class="card index">
-${links}
-    </ul>
+  <main class="stub">
+    <h1 class="stub__title">Страница открывается по прямой ссылке</h1>
+    <p class="stub__text">Каждый демо-сайт доступен только по своему адресу. Общего списка здесь нет.</p>
   </main>
   <footer class="footer">
     <div class="demo-plate" role="note">
