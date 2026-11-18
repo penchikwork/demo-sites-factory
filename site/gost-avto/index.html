@@ -835,6 +835,7 @@ a:focus-visible {
 .calc {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* колонка не шире карточки, что бы ни лежало внутри */
   gap: 18px;
   padding: 24px var(--card-pad);
   border: 1px solid var(--rule);
@@ -906,6 +907,59 @@ a:focus-visible {
   color: var(--text);
   font-size: var(--fs-s);
   line-height: 1.4;
+}
+
+/* Обещание быстрой реакции: стальная бирка у формы — иконка канала, срок или часы, статус */
+.reply {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 44ch;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-btn);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.reply__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: var(--radius-tile);
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.reply__body { min-width: 0; }
+
+.reply__title {
+  font-size: var(--fs-s);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.reply__hours {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+}
+
+/* строки графика через запятую; диапазон «Пн–Пт 9:00–20:00» не рвётся */
+.reply__hours span { white-space: nowrap; }
+.reply__hours span + span::before { content: ", "; }
+
+/* статус внутри бирки — строкой, без «таблетки»: на узком экране не ломается в два овала */
+.reply .status {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
 }
 
 @media (min-width: 900px) {
@@ -1043,6 +1097,214 @@ a:focus-visible {
   color: var(--accent);
 }
 
+/* ---------- Частые вопросы: аккордеон на <details> ---------- */
+/* Одна стальная плита с швами между вопросами; открытый вопрос — с оранжевой кромкой. */
+.faq {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.faq__item + .faq__item { border-top: 1px solid var(--rule); }
+
+.faq__item[open] { box-shadow: inset 3px 0 0 var(--accent); }
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 60px;
+  padding: 14px var(--card-pad);
+  font-size: var(--fs-l);
+  font-weight: 700;
+  line-height: 1.3;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease-out;
+}
+
+.faq__q::-webkit-details-marker { display: none; }
+.faq__q::marker { content: ""; }
+
+.faq__q-text { min-width: 0; }
+
+.faq__q:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* «плюс» на стальной плитке; при открытии вертикальная черта гаснет — получается «минус» */
+.faq__mark {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-tile);
+  color: var(--accent);
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.faq__mark::before,
+.faq__mark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  margin: -1px 0 0 -6px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.faq__mark::after { transform: rotate(90deg); }
+
+.faq__item[open] .faq__mark {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.faq__item[open] .faq__mark::after { transform: rotate(0deg); }
+
+.faq__a {
+  padding: 0 var(--card-pad) 18px;
+  color: var(--text-muted);
+  font-size: var(--fs-m);
+  line-height: 1.55;
+}
+
+.faq__a p { max-width: 62ch; }
+
+/* Плавное раскрытие там, где браузер умеет анимировать высоту <details>; иначе — сразу */
+@supports (interpolate-size: allow-keywords) {
+  .faq { interpolate-size: allow-keywords; }
+  .faq__item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), content-visibility 0.3s allow-discrete;
+  }
+  .faq__item[open]::details-content { block-size: auto; }
+}
+
+@media (hover: hover) {
+  .faq__q:hover { background: var(--card-raised); }
+  .faq__q:hover .faq__mark { border-color: var(--accent); }
+}
+
+@media (min-width: 900px) {
+  .faq__q { padding-left: 28px; padding-right: 28px; }
+  .faq__a { padding-left: 28px; padding-right: 76px; }
+}
+
+/* ---------- Как добраться: карточка проезда и контакты ---------- */
+/* На ПК — две колонки: карточка проезда шире, контакты рядом; на телефоне — столбиком */
+.visit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.visit > .route { flex: 1 1 520px; min-width: 0; }
+.visit > .contacts { flex: 1 1 300px; min-width: 0; align-self: stretch; }
+
+/* Карточка проезда — та же стальная плита, что и табличка первого экрана:
+   заклёпки по углам, инженерная сетка, адрес крупным узким шрифтом. */
+.route {
+  position: relative;
+  display: grid;
+  gap: 20px;
+  padding: 26px var(--card-pad) var(--card-pad);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(circle at 12px 14px, #3A4049 0 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 12px) 14px, #3A4049 0 2.5px, transparent 3px),
+    radial-gradient(circle at 12px calc(100% - 12px), #3A4049 0 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #3A4049 0 2.5px, transparent 3px),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px) -1px -1px / 24px 24px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) -1px -1px / 24px 24px,
+    var(--card);
+}
+
+.route__place {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.route__pin {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-btn);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.route__pin .icon { width: 24px; height: 24px; }
+
+.route__where { min-width: 0; }
+
+.route__city {
+  color: var(--text-muted);
+  font-size: var(--fs-l);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.route__address {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 11vw, 3.25rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.route__note {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: var(--fs-s);
+  line-height: 1.4;
+}
+
+.route__hours {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  line-height: 1.35;
+}
+
+.route__hours .icon { margin-top: 1px; color: var(--accent); }
+.route__hours > div { min-width: 0; }
+.route__line { display: block; font-weight: 600; }
+
+/* две кнопки рядом, только если обе подписи помещаются в строку; иначе — столбиком */
+.route__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: 10px;
+}
+
+.route__actions .btn { padding: 12px 14px; font-size: var(--fs-m); }
+
+@media (min-width: 900px) {
+  .route { padding: 32px 28px 28px; }
+}
+
 /* ---------- Контакты ---------- */
 .contacts {
   padding: 0 var(--card-pad);
@@ -1126,6 +1388,118 @@ a.contacts__value {
 }
 
 .demo-plate a { color: var(--text); font-weight: 700; text-decoration-color: var(--accent); }
+
+/* Ссылка на политику — под плашкой, тихо, но с зоной нажатия 44 px */
+.footer__legal {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.footer__link {
+  display: inline-block;
+  padding: 12px 8px;
+  color: var(--text-muted);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  text-decoration-color: var(--rule-strong);
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease-out, text-decoration-color 0.15s ease-out;
+}
+
+.footer__link:hover { color: var(--text); text-decoration-color: var(--accent); }
+
+/* ---------- Окно «Политика конфиденциальности» (<dialog>) ---------- */
+.modal {
+  width: min(520px, calc(100% - 24px));
+  max-height: min(640px, calc(100dvh - 48px));
+  margin: auto;
+  padding: 0; /* щелчок по самому окну = щелчок по затемнению */
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.modal[open],
+.modal:target { display: flex; flex-direction: column; }
+
+/* без скрипта окно открывается по якорю #privacy */
+.modal:target:not([open]) {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+
+.modal::backdrop {
+  background: rgba(8, 9, 11, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.modal[open] { animation: modal-in 0.22s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.modal[open]::backdrop { animation: fade-in 0.22s ease-out; }
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes fade-in { from { opacity: 0; } }
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 10px 14px var(--card-pad);
+  border-bottom: 1px solid var(--rule);
+}
+
+.modal__title {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.modal__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-btn);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease-out;
+}
+
+.modal__close:hover { background: var(--card-raised); }
+.modal__close .icon { width: 22px; height: 22px; }
+
+.modal__body {
+  display: grid;
+  gap: 10px;
+  padding: 18px var(--card-pad) 22px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--text-muted);
+  font-size: var(--fs-s);
+  line-height: 1.5;
+}
+
+.modal__body > p:first-child { color: var(--text); font-size: var(--fs-m); }
+
+.modal__h {
+  margin-top: 6px;
+  color: var(--text);
+  font-size: var(--fs-m);
+  font-weight: 700;
+  line-height: 1.3;
+}
 
 /* ---------- Нижняя панель звонка (телефоны) ---------- */
 /* Последний элемент страницы с position: sticky — всегда прижата к низу экрана
@@ -1245,6 +1619,9 @@ a.contacts__value {
     <symbol id="s-car" viewBox="0 0 32 32"><path d="M3.5 21.5v-4l3.5-1.2 3.5-5.3h11l4.5 5.3 3.5 1.2v4h-2.5M7 21.5H3.5M12.5 21.5h7.5"/><circle cx="9.8" cy="22" r="2.6"/><circle cx="22.5" cy="22" r="2.6"/><path d="M16 11v5.3M7 16.3h20"/></symbol>
     <symbol id="s-service" viewBox="0 0 32 32"><path d="M19.6 8.4a1.3 1.3 0 0 0 0 1.9l2.1 2.1a1.3 1.3 0 0 0 1.9 0l5-5a8 8 0 0 1-10.6 10.6l-9.2 9.2a2.8 2.8 0 0 1-4-4l9.2-9.2A8 8 0 0 1 24.6 3.4z"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
   </svg>
 
   <!-- Верхняя плашка демо-концепта: обязательна, не удалять и не скрывать -->
@@ -1623,6 +2000,15 @@ a.contacts__value {
         <div class="calc__intro">
           <h2 class="calc__title" id="h-calc">Рассчитать стоимость ремонта</h2>
           <p class="calc__lead">Заполните два поля и нажмите «Узнать цену» — откроется звонок в сервис, а ваш запрос останется на экране.</p>
+          <!-- Обещание быстрой реакции. Срок ответа — только для мессенджера; без него — часы звонков из графика. -->
+          <div class="reply" role="note">
+            <span class="reply__icon" aria-hidden="true"><svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-phone"/></svg></span>
+            <div class="reply__body">
+              <p class="reply__title">Звонки принимают в рабочее время</p>
+              <p class="reply__hours"><span>Ежедневно 9:00–20:00</span></p>
+              <span class="status" data-status hidden><span class="status__dot" aria-hidden="true"></span><span class="status__text"></span></span>
+            </div>
+          </div>
         </div>
         <form class="calc__form" data-calc data-messenger="" data-tel="+79123945482" novalidate>
           <div class="field">
@@ -1729,20 +2115,96 @@ a.contacts__value {
       </div>
     </section>
 
-    <!-- Контакты -->
+    <!-- Частые вопросы: аккордеон на <details>, открывается по клику и без скрипта.
+         Ответы собирает build.js только из фактов карточки (или берёт faq из JSON). -->
+
+    <section class="section" aria-labelledby="h-faq">
+      <h2 class="section__title" id="h-faq">Частые вопросы</h2>
+      <div class="faq reveal">
+
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__q-text">Можно ли приехать со своими запчастями или вы подберёте сами?</span>
+            <span class="faq__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>Договоритесь об этом заранее по телефону: назовите автомобиль и работу, и мастер скажет, можно ли поставить ваши запчасти или сервис подберёт их сам.</p></div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__q-text">Даёте ли вы гарантию на выполненные работы?</span>
+            <span class="faq__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>По описанию в 2ГИС — ремонт в день обращения, с гарантией. Точные условия мастер назовёт при приёме автомобиля — сохраните заказ-наряд.</p></div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__q-text">Сколько времени занимает диагностика и базовый ремонт?</span>
+            <span class="faq__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>Это зависит от автомобиля, неисправности и загрузки сервиса. Примерное время мастер подскажет по телефону, точное — после осмотра.</p></div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__q-text">Называете ли точную стоимость до начала работ?</span>
+            <span class="faq__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>Итог зависит от автомобиля и состояния деталей: попросите мастера назвать сумму после осмотра и согласовать её до начала работ.</p></div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__q-text">Какие способы оплаты принимаете?</span>
+            <span class="faq__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>По данным карточки компании: оплата картой, наличный расчёт, оплата через банк.</p></div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- Как добраться: карточка проезда (адрес крупно, график, маршрут) и контакты -->
 
     <section class="section" aria-labelledby="h-contacts">
-      <h2 class="section__title" id="h-contacts">Контакты</h2>
+      <h2 class="section__title" id="h-contacts">Как добраться</h2>
+      <div class="visit">
+
+      <div class="route reveal">
+        <div class="route__place">
+          <span class="route__pin" aria-hidden="true"><svg class="icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pin"/></svg></span>
+          <div class="route__where">
+            <p class="route__city">Тюмень</p>
+            <p class="route__address"><span class="visually-hidden">Адрес: </span>улица Николая Фёдорова, 32</p>
+
+          </div>
+        </div>
+
+        <div class="route__hours">
+          <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
+          <div>
+            <p><span class="visually-hidden">Часы работы: </span><span class="route__line">Ежедневно 9:00–20:00</span></p>
+            <span class="status" data-status hidden><span class="status__dot" aria-hidden="true"></span><span class="status__text"></span></span>
+          </div>
+        </div>
+
+        <div class="route__actions">
+
+          <a class="btn btn--solid" href="https://2gis.ru/tyumen/directions/points/%7C65.551182%2C57.110274%3B70000001110237699" target="_blank" rel="noopener nofollow">
+            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-route"/></svg>
+            Построить маршрут в 2ГИС
+          </a>
+
+          <a class="btn btn--ghost" href="https://yandex.ru/maps/?text=%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%8C%2C%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%20%D0%9D%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D1%8F%20%D0%A4%D1%91%D0%B4%D0%BE%D1%80%D0%BE%D0%B2%D0%B0%2C%2032" target="_blank" rel="noopener nofollow">
+            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-map"/></svg>
+            Открыть в Яндекс Картах
+          </a>
+
+        </div>
+      </div>
+
       <address class="card contacts reveal">
-
-        <p class="contacts__row">
-          <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
-          <span>
-            <span class="contacts__label">Адрес</span>
-            <span class="contacts__value">Тюмень, улица Николая Фёдорова, 32</span>
-
-          </span>
-        </p>
 
         <p class="contacts__row">
           <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
@@ -1761,6 +2223,8 @@ a.contacts__value {
         </p>
 
       </address>
+
+      </div>
     </section>
 
   </main>
@@ -1772,7 +2236,28 @@ a.contacts__value {
       <p class="demo-plate__text">Страница сделана как пример сайта для «Гост Авто» и не связана с организацией. Сведения взяты только из открытых источников.</p>
       <p class="demo-plate__text">Источник: <a href="https://2gis.ru/tyumen/firm/70000001110237699" target="_blank" rel="noopener nofollow">карточка организации в 2ГИС</a>, данные на 17.11.2026.</p>
     </div>
+    <p class="footer__legal"><a class="footer__link" href="#privacy" data-privacy-open>Политика конфиденциальности</a></p>
   </footer>
+
+  <!-- Политика конфиденциальности: компактное окно на <dialog>, без отдельной страницы.
+       Без скрипта открывается по якорю #privacy (CSS :target). -->
+  <dialog class="modal" id="privacy" aria-labelledby="privacy-title">
+    <div class="modal__head">
+      <h2 class="modal__title" id="privacy-title">Политика конфиденциальности</h2>
+      <a class="modal__close" href="#" role="button" aria-label="Закрыть" data-privacy-close>
+        <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-close"/></svg>
+      </a>
+    </div>
+    <div class="modal__body">
+      <p>Эта страница — демо-концепт сайта «Гост Авто». Она не принадлежит автосервису и не собирает персональные данные.</p>
+      <h3 class="modal__h">Обращения</h3>
+      <p>Форма «Рассчитать стоимость» ничего не отправляет и не сохраняет: она только открывает звонок в сервис. Обращение вы отправляете сами, напрямую в автосервис, и дальше его обрабатывает сервис по своим правилам.</p>
+      <h3 class="modal__h">Cookie и счётчики</h3>
+      <p>Страница не ставит cookie и не подключает счётчики посещений. Хостинг может вести технические журналы запросов: IP-адрес, время, браузер.</p>
+      <h3 class="modal__h">Удаление</h3>
+      <p>Страницу удалим по первой просьбе представителя компании.</p>
+    </div>
+  </dialog>
 
   <!-- Нижняя панель звонка на телефоне: закреплена всегда, где есть телефон -->
 
@@ -1782,7 +2267,7 @@ a.contacts__value {
       Позвонить в сервис
     </a>
 
-    <a class="btn btn--ghost dock__map" href="https://2gis.ru/tyumen/firm/70000001110237699" target="_blank" rel="noopener nofollow" aria-label="Маршрут в 2ГИС">
+    <a class="btn btn--ghost dock__map" href="https://2gis.ru/tyumen/directions/points/%7C65.551182%2C57.110274%3B70000001110237699" target="_blank" rel="noopener nofollow" aria-label="Маршрут в 2ГИС">
       <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
     </a>
 
@@ -1796,9 +2281,10 @@ a.contacts__value {
     var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // 1. Открыто ли сейчас — по графику со страницы и часовому поясу города.
-    var status = document.querySelector('[data-status]');
+    //    Статус стоит на табличке, у формы расчёта и в карточке проезда.
+    var statuses = Array.prototype.slice.call(document.querySelectorAll('[data-status]'));
     var days = Array.prototype.slice.call(document.querySelectorAll('.week__day[data-day]'));
-    if (status && days.length && root.dataset.tz) {
+    if (statuses.length && days.length && root.dataset.tz) {
       try {
         var parts = new Intl.DateTimeFormat('en-US', {
           timeZone: root.dataset.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
@@ -1825,9 +2311,10 @@ a.contacts__value {
         var t = dayInfo(today);
         if (t) t.li.classList.add('week__day--today');
         var text = '';
+        var isOpen = false;
         if (t && !t.closed && t.open !== null && t.close !== null && now >= t.open && now < t.close) {
           text = 'Открыто до ' + t.closeText;
-          status.classList.add('status--open');
+          isOpen = true;
         } else if (t && !t.closed && t.open !== null && now < t.open) {
           text = 'Закрыто, откроется в ' + t.openText;
         } else {
@@ -1840,8 +2327,11 @@ a.contacts__value {
           }
         }
         if (text) {
-          status.querySelector('.status__text').textContent = text;
-          status.hidden = false;
+          statuses.forEach(function (status) {
+            status.querySelector('.status__text').textContent = text;
+            status.classList.toggle('status--open', isOpen);
+            status.hidden = false;
+          });
         }
       } catch (e) { /* без статуса */ }
     }
@@ -1938,6 +2428,26 @@ a.contacts__value {
         }
         note.hidden = false;
       });
+    }
+
+    // 7. Политика конфиденциальности: модальное окно <dialog>.
+    //    Закрывается крестиком, Esc и щелчком по затемнению; фокус возвращается на ссылку.
+    var modal = document.getElementById('privacy');
+    var opener = document.querySelector('[data-privacy-open]');
+    if (modal && opener && typeof modal.showModal === 'function') {
+      opener.addEventListener('click', function (e) {
+        e.preventDefault();
+        modal.showModal();
+      });
+      modal.querySelector('[data-privacy-close]').addEventListener('click', function (e) {
+        e.preventDefault();
+        modal.close();
+      });
+      // щелчок по затемнению: у самого окна отступов нет, содержимое заполняет его целиком
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) modal.close();
+      });
+      modal.addEventListener('close', function () { opener.focus(); });
     }
   })();
   </script>

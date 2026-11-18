@@ -45,6 +45,9 @@
     <symbol id="s-car" viewBox="0 0 32 32"><path d="M3.5 21.5v-4l3.5-1.2 3.5-5.3h11l4.5 5.3 3.5 1.2v4h-2.5M7 21.5H3.5M12.5 21.5h7.5"/><circle cx="9.8" cy="22" r="2.6"/><circle cx="22.5" cy="22" r="2.6"/><path d="M16 11v5.3M7 16.3h20"/></symbol>
     <symbol id="s-service" viewBox="0 0 32 32"><path d="M19.6 8.4a1.3 1.3 0 0 0 0 1.9l2.1 2.1a1.3 1.3 0 0 0 1.9 0l5-5a8 8 0 0 1-10.6 10.6l-9.2 9.2a2.8 2.8 0 0 1-4-4l9.2-9.2A8 8 0 0 1 24.6 3.4z"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
   </svg>
 
   <!-- Верхняя плашка демо-концепта: обязательна, не удалять и не скрывать -->
@@ -233,6 +236,15 @@
         <div class="calc__intro">
           <h2 class="calc__title" id="h-calc">Рассчитать стоимость ремонта</h2>
           <p class="calc__lead">{{#if messengers}}Заполните два поля — откроется мессенджер сервиса с готовым сообщением.{{else}}Заполните два поля и нажмите «Узнать цену» — откроется звонок в сервис, а ваш запрос останется на экране.{{/if}}</p>
+          <!-- Обещание быстрой реакции. Срок ответа — только для мессенджера; без него — часы звонков из графика. -->
+          <div class="reply" role="note">
+            <span class="reply__icon" aria-hidden="true"><svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#{{#if messengers}}i-chat{{else}}i-phone{{/if}}"/></svg></span>
+            <div class="reply__body">
+              <p class="reply__title">{{#if messengers}}Ответим в мессенджере за 5–10 минут в рабочее время{{else}}Звонки принимают в рабочее время{{/if}}</p>
+              {{#if hours_lines}}<p class="reply__hours">{{#each hours_lines}}<span>{{this}}</span>{{/each}}</p>{{/if}}
+              {{#if week}}<span class="status" data-status hidden><span class="status__dot" aria-hidden="true"></span><span class="status__text"></span></span>{{/if}}
+            </div>
+          </div>
         </div>
         <form class="calc__form" data-calc data-messenger="{{#if messengers}}{{messengers.0.href}}{{/if}}" data-tel="{{#if phones}}{{phones.0.href}}{{/if}}" novalidate>
           <div class="field">
@@ -313,21 +325,67 @@
     </section>
     {{/if}}
 
-    <!-- Контакты -->
+    <!-- Частые вопросы: аккордеон на <details>, открывается по клику и без скрипта.
+         Ответы собирает build.js только из фактов карточки (или берёт faq из JSON). -->
+    {{#if faq}}
+    <section class="section" aria-labelledby="h-faq">
+      <h2 class="section__title" id="h-faq">Частые вопросы</h2>
+      <div class="faq reveal">
+        {{#each faq}}
+        <details class="faq__item">
+          <summary class="faq__q">
+            <span class="faq__q-text">{{q}}</span>
+            <span class="faq__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p>{{a}}</p></div>
+        </details>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+    <!-- Как добраться: карточка проезда (адрес крупно, график, маршрут) и контакты -->
     {{#if address || phones || links || map_url}}
     <section class="section" aria-labelledby="h-contacts">
-      <h2 class="section__title" id="h-contacts">Контакты</h2>
-      <address class="card contacts reveal">
-        {{#if address}}
-        <p class="contacts__row">
-          <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
-          <span>
-            <span class="contacts__label">Адрес</span>
-            <span class="contacts__value">{{#if city}}{{city}}, {{/if}}{{address}}</span>
-            {{#if address_note}}<span class="contacts__label">{{address_note}}</span>{{/if}}
-          </span>
-        </p>
+      <h2 class="section__title" id="h-contacts">{{#if address}}Как добраться{{else}}Контакты{{/if}}</h2>
+      <div class="visit">
+      {{#if address}}
+      <div class="route reveal">
+        <div class="route__place">
+          <span class="route__pin" aria-hidden="true"><svg class="icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pin"/></svg></span>
+          <div class="route__where">
+            {{#if city}}<p class="route__city">{{city}}</p>{{/if}}
+            <p class="route__address"><span class="visually-hidden">Адрес: </span>{{address}}</p>
+            {{#if address_note}}<p class="route__note">{{address_note}}</p>{{/if}}
+          </div>
+        </div>
+        {{#if hours_lines}}
+        <div class="route__hours">
+          <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
+          <div>
+            <p><span class="visually-hidden">Часы работы: </span>{{#each hours_lines}}<span class="route__line">{{this}}</span>{{/each}}</p>
+            {{#if week}}<span class="status" data-status hidden><span class="status__dot" aria-hidden="true"></span><span class="status__text"></span></span>{{/if}}
+          </div>
+        </div>
         {{/if}}
+        <div class="route__actions">
+          {{#if route_url}}
+          <a class="btn btn--solid" href="{{route_url}}" target="_blank" rel="noopener nofollow">
+            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-route"/></svg>
+            Построить маршрут в 2ГИС
+          </a>
+          {{/if}}
+          {{#if yandex_url}}
+          <a class="btn btn--ghost" href="{{yandex_url}}" target="_blank" rel="noopener nofollow">
+            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-map"/></svg>
+            Открыть в Яндекс Картах
+          </a>
+          {{/if}}
+        </div>
+      </div>
+      {{/if}}
+      {{#if phones || links || map_url}}
+      <address class="card contacts reveal">
         {{#each phones}}
         <p class="contacts__row">
           <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
@@ -356,6 +414,8 @@
         </p>
         {{/if}}
       </address>
+      {{/if}}
+      </div>
     </section>
     {{/if}}
 
@@ -368,7 +428,28 @@
       <p class="demo-plate__text">Страница сделана как пример сайта для «{{name}}» и не связана с организацией. Сведения взяты только из открытых источников.</p>
       {{#if source_url}}<p class="demo-plate__text">Источник: <a href="{{source_url}}" target="_blank" rel="noopener nofollow">{{source_label}}</a>{{#if data_date}}, данные на {{data_date}}{{/if}}.</p>{{/if}}
     </div>
+    <p class="footer__legal"><a class="footer__link" href="#privacy" data-privacy-open>Политика конфиденциальности</a></p>
   </footer>
+
+  <!-- Политика конфиденциальности: компактное окно на <dialog>, без отдельной страницы.
+       Без скрипта открывается по якорю #privacy (CSS :target). -->
+  <dialog class="modal" id="privacy" aria-labelledby="privacy-title">
+    <div class="modal__head">
+      <h2 class="modal__title" id="privacy-title">Политика конфиденциальности</h2>
+      <a class="modal__close" href="#" role="button" aria-label="Закрыть" data-privacy-close>
+        <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-close"/></svg>
+      </a>
+    </div>
+    <div class="modal__body">
+      <p>Эта страница — демо-концепт сайта «{{name}}». Она не принадлежит автосервису и не собирает персональные данные.</p>
+      <h3 class="modal__h">Обращения</h3>
+      <p>Форма «Рассчитать стоимость» ничего не отправляет и не сохраняет: она только {{#if messengers}}набирает сообщение в мессенджере{{else}}открывает звонок в сервис{{/if}}. Обращение вы отправляете сами, напрямую в автосервис, и дальше его обрабатывает сервис по своим правилам.</p>
+      <h3 class="modal__h">Cookie и счётчики</h3>
+      <p>Страница не ставит cookie и не подключает счётчики посещений. Хостинг может вести технические журналы запросов: IP-адрес, время, браузер.</p>
+      <h3 class="modal__h">Удаление</h3>
+      <p>Страницу удалим по первой просьбе представителя компании.</p>
+    </div>
+  </dialog>
 
   <!-- Нижняя панель звонка на телефоне: закреплена всегда, где есть телефон -->
   {{#if phones}}
@@ -378,7 +459,7 @@
       Позвонить в сервис
     </a>
     {{#if map_url}}
-    <a class="btn btn--ghost dock__map" href="{{map_url}}" target="_blank" rel="noopener nofollow" aria-label="Маршрут в 2ГИС">
+    <a class="btn btn--ghost dock__map" href="{{#if route_url}}{{route_url}}{{else}}{{map_url}}{{/if}}" target="_blank" rel="noopener nofollow" aria-label="Маршрут в 2ГИС">
       <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
     </a>
     {{/if}}
@@ -394,9 +475,10 @@
     var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // 1. Открыто ли сейчас — по графику со страницы и часовому поясу города.
-    var status = document.querySelector('[data-status]');
+    //    Статус стоит на табличке, у формы расчёта и в карточке проезда.
+    var statuses = Array.prototype.slice.call(document.querySelectorAll('[data-status]'));
     var days = Array.prototype.slice.call(document.querySelectorAll('.week__day[data-day]'));
-    if (status && days.length && root.dataset.tz) {
+    if (statuses.length && days.length && root.dataset.tz) {
       try {
         var parts = new Intl.DateTimeFormat('en-US', {
           timeZone: root.dataset.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
@@ -423,9 +505,10 @@
         var t = dayInfo(today);
         if (t) t.li.classList.add('week__day--today');
         var text = '';
+        var isOpen = false;
         if (t && !t.closed && t.open !== null && t.close !== null && now >= t.open && now < t.close) {
           text = 'Открыто до ' + t.closeText;
-          status.classList.add('status--open');
+          isOpen = true;
         } else if (t && !t.closed && t.open !== null && now < t.open) {
           text = 'Закрыто, откроется в ' + t.openText;
         } else {
@@ -438,8 +521,11 @@
           }
         }
         if (text) {
-          status.querySelector('.status__text').textContent = text;
-          status.hidden = false;
+          statuses.forEach(function (status) {
+            status.querySelector('.status__text').textContent = text;
+            status.classList.toggle('status--open', isOpen);
+            status.hidden = false;
+          });
         }
       } catch (e) { /* без статуса */ }
     }
@@ -536,6 +622,26 @@
         }
         note.hidden = false;
       });
+    }
+
+    // 7. Политика конфиденциальности: модальное окно <dialog>.
+    //    Закрывается крестиком, Esc и щелчком по затемнению; фокус возвращается на ссылку.
+    var modal = document.getElementById('privacy');
+    var opener = document.querySelector('[data-privacy-open]');
+    if (modal && opener && typeof modal.showModal === 'function') {
+      opener.addEventListener('click', function (e) {
+        e.preventDefault();
+        modal.showModal();
+      });
+      modal.querySelector('[data-privacy-close]').addEventListener('click', function (e) {
+        e.preventDefault();
+        modal.close();
+      });
+      // щелчок по затемнению: у самого окна отступов нет, содержимое заполняет его целиком
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) modal.close();
+      });
+      modal.addEventListener('close', function () { opener.focus(); });
     }
   })();
   </script>

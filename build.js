@@ -156,7 +156,67 @@ function prepare(data, file) {
   })).filter((g) => g.count !== '0');
   data.service_groups = groups.length >= 2 ? groups : [];
   data.services_count = String((data.services || []).length);
+
+  // «Как добраться»: маршрут в 2ГИС до точки организации и поиск адреса в Яндекс Картах.
+  data.route_url = routeUrl(data.map_url);
+  data.yandex_url = data.address
+    ? 'https://yandex.ru/maps/?text=' + encodeURIComponent([data.city, data.address].filter(Boolean).join(', '))
+    : '';
+  // «Частые вопросы»: свои в JSON (`faq`) или собранные из фактов карточки.
+  if (!Array.isArray(data.faq) || !data.faq.length) data.faq = buildFaq(data);
   return data;
+}
+
+// Маршрут в 2ГИС: точка организации из data/2gis/{id}.json, начало маршрута — на выбор пользователя.
+// Если точки нет — просто карточка организации.
+function routeUrl(mapUrl) {
+  const m = /2gis\.ru\/([a-z_-]+)\/firm\/(\d+)/.exec(mapUrl || '');
+  if (!m) return mapUrl || '';
+  const file = path.join(ROOT, 'data', '2gis', `${m[2]}.json`);
+  if (!fs.existsSync(file)) return mapUrl;
+  const point = (JSON.parse(fs.readFileSync(file, 'utf8')).item || {}).point;
+  if (!point || point.lon == null || point.lat == null) return mapUrl;
+  return `https://2gis.ru/${m[1]}/directions/points/${encodeURIComponent(`|${point.lon},${point.lat};${m[2]}`)}`;
+}
+
+// Ответы нейтральные: факты (оплата, гарантия, цены) — только из данных страницы,
+// чего в данных нет — предлагаем уточнить у мастера. Сроки и суммы не придумываем.
+function buildFaq(data) {
+  const steps = data.steps || [];
+  const services = data.services || [];
+  const contact = (data.phones || []).length ? 'по телефону' : 'в сервисе';
+
+  const parts = services.some((s) => s.icon === 'parts')
+    ? 'Подходят оба варианта, но договориться лучше заранее. Сервис продаёт запчасти сам — мастер подберёт их по автомобилю. Если хотите приехать со своими, предупредите при записи: мастер скажет, подойдут ли они для ремонта.'
+    : `Договоритесь об этом заранее ${contact}: назовите автомобиль и работу, и мастер скажет, можно ли поставить ваши запчасти или сервис подберёт их сам.`;
+
+  const warrantyStep = steps.find((s) => /гарант/i.test(`${s.title} ${s.text}`));
+  const warranty = warrantyStep && warrantyStep.text
+    ? `${warrantyStep.text.replace(/\.?$/, '.')} Точные условия мастер назовёт при приёме автомобиля — сохраните заказ-наряд.`
+    : 'Условия гарантии мастер назовёт до начала ремонта — спросите о них при приёме автомобиля. Сохраните заказ-наряд: в нём указаны выполненные работы.';
+
+  const timing = `Это зависит от автомобиля, неисправности и загрузки сервиса. Примерное время мастер подскажет ${contact}, точное — после осмотра.`;
+
+  const agreeStep = steps.find((s) => /согласован/i.test(s.title) && s.text);
+  const hasPrices = services.some((s) => s.price);
+  const price = [
+    agreeStep ? agreeStep.text.replace(/\.?$/, '.') : '',
+    hasPrices ? 'Цены «от» в разделе «Услуги и цены» — нижняя граница.' : '',
+    'Итог зависит от автомобиля и состояния деталей: попросите мастера назвать сумму после осмотра и согласовать её до начала работ.',
+  ].filter(Boolean).join(' ');
+
+  const pay = (data.features || []).filter((f) => /оплат|наличн|перевод|рассрочк|кредит/i.test(f));
+  const payment = pay.length
+    ? `По данным карточки компании: ${pay.map((f) => f.charAt(0).toLowerCase() + f.slice(1)).join(', ')}.`
+    : `Способы оплаты уточните ${contact} перед визитом.`;
+
+  return [
+    { q: 'Можно ли приехать со своими запчастями или вы подберёте сами?', a: parts },
+    { q: 'Даёте ли вы гарантию на выполненные работы?', a: warranty },
+    { q: 'Сколько времени занимает диагностика и базовый ремонт?', a: timing },
+    { q: 'Называете ли точную стоимость до начала работ?', a: price },
+    { q: 'Какие способы оплаты принимаете?', a: payment },
+  ];
 }
 
 // Группы для табов «Услуги и цены» — по иконке услуги.
