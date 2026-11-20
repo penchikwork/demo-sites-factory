@@ -163,38 +163,56 @@ function prepare(data, file) {
     ? 'https://yandex.ru/maps/?text=' + encodeURIComponent([data.city, data.address].filter(Boolean).join(', '))
     : '';
   // Мессенджеры компании: { type, phone } или { type, href } → ссылки и подписи кнопок.
-  if (Array.isArray(data.messengers)) data.messengers = data.messengers.map(messenger);
+  data.messengers = (Array.isArray(data.messengers) ? data.messengers : []).map(messenger);
+  data.chat_links = data.messengers.filter((m) => m.link);
+  const copy = copyTexts(data);
+  data.copy_label = copy.label;
+  data.copy_toast = copy.toast;
   // «Частые вопросы»: свои в JSON (`faq`) или собранные из фактов карточки.
   if (!Array.isArray(data.faq) || !data.faq.length) data.faq = buildFaq(data);
   return data;
 }
 
-// Telegram и WhatsApp открывают чат по номеру; у Max ссылки на чат по номеру нет:
-// без адреса профиля кнопка копирует заявку, открывает Max и подсказывает номер для поиска.
+// По номеру телефона надёжно открывается только WhatsApp (wa.me/…?text=…).
+// Telegram по номеру часто не находит человека (номер скрыт), у Max ссылки на чат по номеру нет:
+// без адреса профиля (`href`) они попадают в кнопку «Скопировать заявку для …».
 const MESSENGERS = {
-  telegram: { name: 'Telegram', icon: 'i-send', url: (d) => `https://t.me/+${d}` },
   whatsapp: { name: 'WhatsApp', icon: 'i-chat', url: (d) => `https://wa.me/${d}` },
-  max: { name: 'Max', icon: 'i-chat', url: () => 'https://max.ru/' },
+  telegram: { name: 'Telegram', icon: 'i-send', url: null },
+  max: { name: 'Max', icon: 'i-chat', url: null },
 };
 function messenger(m) {
   const kind = MESSENGERS[m.type];
   // старый формат { label, href }: ссылка как есть, общая иконка чата
-  if (!kind) return { type: '', name: '', find_by: '', icon: 'i-chat', send_label: m.label, ...m };
+  if (!kind) return { type: '', name: '', icon: 'i-chat', send_label: m.label, link: true, ...m };
   const digits = String(m.phone || '').replace(/\D/g, '');
-  const href = m.href || (digits ? kind.url(digits) : '');
-  if (!href) throw new Error(`мессенджер ${m.type}: нужен phone или href`);
-  // У Max по номеру — подсказка, где искать сервис после открытия приложения.
-  const find = m.type === 'max' && !m.href && digits
-    ? `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`
-    : '';
+  if (!m.href && !digits) throw new Error(`мессенджер ${m.type}: нужен phone или href`);
+  const href = m.href || (kind.url ? kind.url(digits) : '');
   return {
     ...m,
     href,
+    link: Boolean(href),
     label: m.label || `Написать в ${kind.name}`,
     send_label: `Отправить в ${kind.name}`,
     icon: kind.icon,
     name: kind.name,
-    find_by: find,
+  };
+}
+
+// Кнопка копирования заявки: подпись и плашка зависят от того, куда заявку вставят.
+function copyTexts(data) {
+  const names = ['max', 'telegram']
+    .filter((t) => data.messengers.some((m) => m.type === t && !m.link))
+    .map((t) => MESSENGERS[t].name);
+  // номер в плашке не должен рваться: неразрывные пробелы и дефисы
+  const phone = (data.phones || [])[0] ? data.phones[0].value.replace(/ /g, '\u00A0').replace(/-/g, '\u2011') : '';
+  if (!names.length) {
+    return { label: 'Скопировать заявку', toast: 'Заявка скопирована! Вставьте её в чат или прочитайте мастеру по телефону.' };
+  }
+  const where = names.length === 1 ? `чат ${names[0]} или мессенджер` : `чат ${names.join(' или ')}`;
+  return {
+    label: names.length === 1 ? `Скопировать заявку для ${names[0]} / чата` : `Скопировать для ${names.join(' / ')}`,
+    toast: `Заявка скопирована! Вставьте её в ${where}${phone ? ` по номеру ${phone}` : ''}`,
   };
 }
 

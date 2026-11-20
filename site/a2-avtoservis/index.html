@@ -921,42 +921,57 @@ a:focus-visible {
   line-height: 1.4;
 }
 
-/* Текст заявки: бланк наряда с пунктирной кромкой; нажатие копирует */
+/* Быстрый выбор работ: чипсы под пальцем, переносятся строками */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-btn);
+  background: var(--bg);
+  color: var(--text);
+  font: 600 var(--fs-s)/1.2 var(--font-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
+}
+/* выбранный: оранжевая кромка и галочка — состояние видно не только по цвету */
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-tint); }
+.chip[aria-pressed="true"]::before {
+  content: "";
+  width: 12px;
+  height: 7px;
+  margin-top: -3px;
+  border-left: 2.5px solid var(--accent);
+  border-bottom: 2.5px solid var(--accent);
+  transform: rotate(-45deg);
+}
+.chip:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.chip:active { background: var(--card-raised); }
+
+@media (hover: hover) {
+  .chip:hover { border-color: var(--text-muted); }
+}
+
+/* Текст заявки: бланк наряда с пунктирной кромкой */
 .draft[hidden] { display: none; }
 .draft { display: grid; gap: 6px; }
 .draft__label { font-size: var(--fs-s); font-weight: 600; }
 
 .draft__text {
-  display: grid;
-  gap: 10px;
-  width: 100%;
   padding: 12px 14px;
   border: 1px dashed var(--rule-strong);
   border-radius: var(--radius-btn);
   background: var(--card-raised);
   color: var(--text);
-  font: 400 var(--fs-s)/1.45 var(--font-text);
-  text-align: left;
+  font-size: var(--fs-s);
+  line-height: 1.45;
   overflow-wrap: anywhere;
-  cursor: copy;
-  -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
-}
-.draft__text:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-.draft__text:active { border-color: var(--accent); background: var(--accent-tint); }
-
-.draft__action {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 24px;
-  color: var(--accent);
-  font-weight: 700;
-}
-.draft__action .icon { width: 18px; height: 18px; }
-
-@media (hover: hover) {
-  .draft__text:hover { border-color: var(--text-muted); }
+  user-select: all;
 }
 
 /* Кнопки отправки: столбик на телефоне, сетка с 560 px. Первая — главная. */
@@ -1922,7 +1937,7 @@ a.contacts__value {
             <p class="offer__price">от 1 500 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Диагностика BMW, Mercedes, VAG">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Диагностика BMW, Mercedes, VAG</span>
@@ -1939,7 +1954,7 @@ a.contacts__value {
             <p class="offer__price">от 1 500 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Диагностика китайских авто">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Диагностика китайских авто</span>
@@ -1956,7 +1971,7 @@ a.contacts__value {
             <p class="offer__price">от 1 800 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Сход-развал HUNTER 3D">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Сход-развал HUNTER 3D</span>
@@ -1974,7 +1989,7 @@ a.contacts__value {
           </div>
           <p class="offer__text">Ремонт пневмоподвески, ремонт стоек</p>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Ремонт ходовой части автомобиля">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Ремонт ходовой части автомобиля</span>
@@ -1991,7 +2006,7 @@ a.contacts__value {
             <p class="offer__price">от 1 000 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Тормозная система">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Тормозная система</span>
@@ -2008,7 +2023,7 @@ a.contacts__value {
             <p class="offer__price">от 3 500 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Масло в АКПП">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Масло в АКПП</span>
@@ -2025,7 +2040,7 @@ a.contacts__value {
             <p class="offer__price">от 8 500 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Установка сигнализации с автозапуском">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Установка сигнализации с автозапуском</span>
@@ -2042,7 +2057,7 @@ a.contacts__value {
             <p class="offer__price">от 12 000 ₽</p>
           </div>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Замена ГРМ">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Замена ГРМ</span>
@@ -2060,7 +2075,7 @@ a.contacts__value {
           </div>
           <p class="offer__text">Замена колодок, ошиповка шин</p>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Шиномонтаж">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Шиномонтаж</span>
@@ -2078,7 +2093,7 @@ a.contacts__value {
           </div>
           <p class="offer__text">Аппаратная замена масла</p>
 
-          <!-- Вся карточка кликабельна: мессенджер с готовым текстом, иначе звонок -->
+          <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="tel:+79026232223" data-service="Замена масла">
             <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
             Узнать точную цену<span class="visually-hidden">: Замена масла</span>
@@ -2091,13 +2106,13 @@ a.contacts__value {
       <p class="section__note">Цены «от» из прайса 2ГИС, обновлён 31 августа 2026. Точную стоимость уточняйте по телефону.</p>
     </section>
 
-    <!-- Рассчитать стоимость: собирает текст заявки, копирует его и открывает выбранный мессенджер или звонок. Видна, когда работает скрипт. -->
+    <!-- Рассчитать стоимость: быстрый выбор работ чипсами, текст заявки, WhatsApp, копирование для Max / Telegram и звонок. Видна, когда работает скрипт. -->
 
     <section class="section" aria-labelledby="h-calc" data-calc-section hidden>
       <div class="calc reveal">
         <div class="calc__intro">
           <h2 class="calc__title" id="h-calc">Рассчитать стоимость ремонта</h2>
-          <p class="calc__lead">Заполните два поля — соберём текст заявки. Его можно скопировать или назвать мастеру по телефону.</p>
+          <p class="calc__lead">Укажите авто и выберите, что беспокоит, — соберём текст заявки. Его можно скопировать или назвать мастеру по телефону.</p>
           <!-- Когда отвечают: часы работы из графика и статус «открыто сейчас». Сроков ответа не обещаем — их нет в данных. -->
           <div class="reply" role="note">
             <span class="reply__icon" aria-hidden="true"><svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-phone"/></svg></span>
@@ -2116,27 +2131,35 @@ a.contacts__value {
           </div>
           <div class="field">
             <label class="field__label" for="calc-job">Что нужно сделать</label>
-            <textarea class="field__input field__input--area" id="calc-job" name="job" rows="3" maxlength="300" placeholder="Например, замена тормозных колодок" aria-describedby="calc-job-err"></textarea>
+            <!-- Быстрый выбор: нажатие добавляет фразу в поле, повторное — убирает -->
+            <div class="chips" role="group" aria-label="Быстрый выбор работ">
+              <button class="chip" type="button" aria-pressed="false" data-phrase="ТО и замена масла">ТО и масло</button>
+              <button class="chip" type="button" aria-pressed="false" data-phrase="диагностика, горит Check Engine">Диагностика / Чек</button>
+              <button class="chip" type="button" aria-pressed="false" data-phrase="стук в подвеске">Подвеска / Стук</button>
+              <button class="chip" type="button" aria-pressed="false" data-phrase="шиномонтаж и развал-схождение">Шиномонтаж / Развал</button>
+              <button class="chip" type="button" aria-pressed="false" data-phrase="ремонт двигателя или КПП">Двигатель / КПП</button>
+            </div>
+            <textarea class="field__input field__input--area" id="calc-job" name="job" rows="3" maxlength="300" placeholder="Выберите выше или опишите своими словами" aria-describedby="calc-job-err"></textarea>
             <p class="field__error" id="calc-job-err" hidden>Опишите, что нужно сделать</p>
           </div>
-          <!-- Текст заявки: собирается по мере ввода, по нажатию копируется -->
+          <!-- Текст заявки: собирается по мере ввода; его и копирует кнопка ниже -->
           <div class="draft" data-draft hidden>
-            <p class="draft__label" id="draft-label">Текст заявки</p>
-            <button class="draft__text" type="button" data-draft-copy aria-labelledby="draft-label draft-body draft-action">
-              <span class="draft__body" id="draft-body" data-draft-text></span>
-              <span class="draft__action" id="draft-action">
-                <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg>
-                Скопировать
-              </span>
-            </button>
+            <p class="draft__label">Текст заявки</p>
+            <p class="draft__text" data-draft-text></p>
           </div>
-          <!-- Куда отправить: мессенджеры компании и звонок. Первая кнопка — главная (оранжевая). -->
+          <!-- Куда отправить. С мессенджером-ссылкой: WhatsApp → копировать → звонок; без него: звонок → копировать.
+               Первая кнопка — главная (оранжевая). -->
           <div class="send" role="group" aria-label="Отправить заявку">
 
             <a class="btn send__btn" href="tel:+79026232223" data-send data-type="tel">
               <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
               Позвонить напрямую
             </a>
+
+            <button class="btn send__btn" type="button" data-copy-request data-toast-text="Заявка скопирована! Вставьте её в чат или прочитайте мастеру по телефону.">
+              <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg>
+              Скопировать заявку
+            </button>
 
           </div>
           <p class="calc__note" data-calc-note aria-live="polite" hidden></p>
@@ -2502,7 +2525,8 @@ a.contacts__value {
       toastEl.textContent = text;
       toastEl.hidden = false;
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () { toastEl.hidden = true; }, 3000);
+      // длинную подсказку (с номером телефона) держим дольше
+      toastTimer = setTimeout(function () { toastEl.hidden = true; }, text.length > 40 ? 5000 : 3000);
     };
     // Синхронное копирование срабатывает и тогда, когда следом открывается новая вкладка.
     var copyText = function (text) {
@@ -2523,14 +2547,11 @@ a.contacts__value {
       }
       return ok;
     };
-    // Готовый текст подставляет только WhatsApp (wa.me/…?text=) и ссылки старого формата;
-    // в Telegram и Max текст вставляют из буфера.
+    // Готовый текст подставляет WhatsApp (wa.me/…?text=) и ссылки старого формата;
+    // в профиль Telegram или Max текст вставляют из буфера.
     var withText = function (href, type, msg) {
       if (type === 'telegram' || type === 'max') return href;
       return href + (href.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
-    };
-    var findHint = function (find) {
-      return find ? ' Найдите сервис в Max по номеру ' + find + '.' : '';
     };
 
     // 4. Заявка из карточки услуги: текст копируется, мессенджер открывается с ним.
@@ -2539,13 +2560,8 @@ a.contacts__value {
       var msg = 'Здравствуйте! Подскажите по стоимости: ' + a.dataset.service;
       a.href = withText(base, a.dataset.type, msg);
       a.addEventListener('click', function () {
-        if (copyText(msg)) toast('Текст заявки скопирован.' + findHint(a.dataset.find));
+        if (copyText(msg)) toast('Текст заявки скопирован');
       });
-    });
-    // Кнопка мессенджера на первом экране: для Max по номеру — подсказка, где искать сервис.
-    Array.prototype.forEach.call(document.querySelectorAll('[data-msg-link]'), function (a) {
-      if (!a.dataset.find) return;
-      a.addEventListener('click', function () { toast(findHint(a.dataset.find).trim()); });
     });
     // 5. Фильтр услуг по категориям.
     var filter = document.querySelector('[data-filter]');
@@ -2564,15 +2580,17 @@ a.contacts__value {
       });
     }
 
-    // 6. Форма «Рассчитать стоимость»: текст заявки, копирование, отправка в мессенджер или звонок.
+    // 6. Форма «Рассчитать стоимость»: чипсы, текст заявки, WhatsApp, копирование, звонок.
     var form = document.querySelector('[data-calc]');
     if (form) {
       document.querySelector('[data-calc-section]').hidden = false;
       var fields = [form.elements.car, form.elements.job];
+      var job = fields[1];
       var note = form.querySelector('[data-calc-note]');
       var draft = form.querySelector('[data-draft]');
       var draftText = form.querySelector('[data-draft-text]');
-      var sendBtns = Array.prototype.slice.call(form.querySelectorAll('[data-send]'));
+      var chips = Array.prototype.slice.call(form.querySelectorAll('.chip'));
+      var SEP = '; ';
       var showError = function (el, on) {
         document.getElementById(el.id + '-err').hidden = !on;
         if (on) el.setAttribute('aria-invalid', 'true');
@@ -2580,8 +2598,8 @@ a.contacts__value {
       };
       var message = function () {
         var car = fields[0].value.trim().replace(/[\s.,;:!]+$/, '');
-        var job = fields[1].value.trim();
-        return 'Здравствуйте! Хочу узнать стоимость ремонта. Авто: ' + (car || '…') + '. Задача: ' + (job || '…');
+        var task = job.value.trim();
+        return 'Здравствуйте! Хочу узнать стоимость ремонта. Авто: ' + (car || '…') + '. Задача: ' + (task || '…');
       };
       var validate = function () {
         var firstBad = null;
@@ -2597,39 +2615,64 @@ a.contacts__value {
         note.textContent = text;
         note.hidden = false;
       };
+      // Фразы из поля «Что нужно сделать» — части через «; ».
+      var parts = function () {
+        return job.value.split(';').map(function (t) { return t.trim(); }).filter(Boolean);
+      };
+      var syncChips = function () {
+        var list = parts();
+        chips.forEach(function (c) {
+          c.setAttribute('aria-pressed', String(list.indexOf(c.dataset.phrase) >= 0));
+        });
+      };
       var refresh = function () {
-        var any = fields.some(function (el) { return el.value.trim(); });
-        draft.hidden = !any;
+        draft.hidden = !fields.some(function (el) { return el.value.trim(); });
         draftText.textContent = message();
       };
       fields.forEach(function (el) {
         el.addEventListener('input', function () {
           if (el.value.trim()) showError(el, false);
+          if (el === job) syncChips();
           refresh();
         });
       });
-      // Нажатие на текст заявки — копирование.
-      form.querySelector('[data-draft-copy]').addEventListener('click', function () {
-        toast(copyText(message()) ? 'Текст заявки скопирован' : 'Не удалось скопировать — выделите текст вручную');
+      // Чипс: одно нажатие добавляет фразу в заявку, повторное — убирает.
+      chips.forEach(function (c) {
+        c.addEventListener('click', function () {
+          var list = parts();
+          var i = list.indexOf(c.dataset.phrase);
+          if (i >= 0) list.splice(i, 1);
+          else list.push(c.dataset.phrase);
+          job.value = list.join(SEP);
+          if (job.value) showError(job, false);
+          syncChips();
+          refresh();
+        });
       });
-      // Enter в поле: проверяем, копируем текст и переводим фокус на главную кнопку отправки.
+      // Enter в поле авто: проверяем и переводим фокус на главную кнопку.
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (!validate()) return;
-        if (copyText(message())) toast('Текст заявки скопирован');
-        if (sendBtns[0]) sendBtns[0].focus();
+        var first = form.querySelector('.send__btn');
+        if (first) first.focus();
       });
-      sendBtns.forEach(function (a) {
+      // «Скопировать заявку для Max / чата»: мгновенно в буфер и плашка с номером.
+      var copyBtn = form.querySelector('[data-copy-request]');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+          if (!validate()) return;
+          if (copyText(message())) toast(copyBtn.dataset.toastText);
+          else say('Не удалось скопировать автоматически — выделите текст заявки выше и скопируйте вручную.');
+        });
+      }
+      Array.prototype.forEach.call(form.querySelectorAll('[data-send]'), function (a) {
         var base = a.getAttribute('href');
         var type = a.dataset.type;
         a.addEventListener('click', function (e) {
           var filled = fields.every(function (el) { return el.value.trim(); });
           if (type === 'tel') {
             // Звонок работает и без формы; если поля заполнены — подсказываем, что сказать.
-            if (filled) {
-              copyText(message());
-              say('Звоним в сервис. Назовите мастеру: ' + fields[0].value.trim() + ' — ' + fields[1].value.trim() + '.');
-            }
+            if (filled) say('Звоним в сервис. Назовите мастеру: ' + fields[0].value.trim() + ' — ' + job.value.trim() + '.');
             return;
           }
           if (!validate()) {
@@ -2640,10 +2683,10 @@ a.contacts__value {
           a.href = withText(base, type, msg);
           var copied = copyText(msg);
           var name = a.dataset.name || 'мессенджер';
-          if (type === 'whatsapp' || !type) {
-            say('Открываем ' + name + ' — сообщение уже набрано, осталось отправить.');
+          if (type === 'telegram' || type === 'max') {
+            say('Открываем ' + name + '. ' + (copied ? 'Текст заявки скопирован — вставьте его в чат и отправьте.' : 'Скопируйте текст заявки выше и вставьте его в чат.'));
           } else {
-            say('Открываем ' + name + '.' + findHint(a.dataset.find) + ' ' + (copied ? 'Текст заявки скопирован — вставьте его в чат и отправьте.' : 'Скопируйте текст заявки выше и вставьте его в чат.'));
+            say('Открываем ' + name + ' — сообщение уже набрано, осталось отправить.');
           }
           if (copied) toast('Текст заявки скопирован');
         });
