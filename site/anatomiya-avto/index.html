@@ -921,6 +921,90 @@ a:focus-visible {
   line-height: 1.4;
 }
 
+/* Текст заявки: бланк наряда с пунктирной кромкой; нажатие копирует */
+.draft[hidden] { display: none; }
+.draft { display: grid; gap: 6px; }
+.draft__label { font-size: var(--fs-s); font-weight: 600; }
+
+.draft__text {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius-btn);
+  background: var(--card-raised);
+  color: var(--text);
+  font: 400 var(--fs-s)/1.45 var(--font-text);
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: copy;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
+}
+.draft__text:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.draft__text:active { border-color: var(--accent); background: var(--accent-tint); }
+
+.draft__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.draft__action .icon { width: 18px; height: 18px; }
+
+@media (hover: hover) {
+  .draft__text:hover { border-color: var(--text-muted); }
+}
+
+/* Кнопки отправки: столбик на телефоне, сетка с 560 px. Первая — главная. */
+.send { display: grid; gap: 10px; }
+.send__btn { min-height: 54px; font-size: var(--fs-m); }
+.send__btn:first-child { background: var(--accent); color: var(--on-accent); }
+.send__btn:first-child:active { background: var(--accent-pressed); }
+.send__btn:not(:first-child) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--rule-strong); }
+.send__btn:not(:first-child):active { background: var(--card-raised); box-shadow: inset 0 0 0 1.5px var(--text-muted); }
+
+@media (hover: hover) {
+  .send__btn:first-child:hover { background: var(--accent-pressed); }
+  .send__btn:not(:first-child):hover { background: var(--card-raised); box-shadow: inset 0 0 0 1.5px var(--text-muted); }
+}
+
+@media (min-width: 560px) {
+  .send { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* главная кнопка на всю ширину, остальные — парами */
+  .send__btn:first-child { grid-column: 1 / -1; }
+}
+
+/* Подсказка «Текст заявки скопирован»: над нижней панелью звонка */
+.toast[hidden] { display: none; }
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  z-index: 20;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--gutter));
+  padding: 12px 16px;
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--ok);
+  border-radius: var(--radius-btn);
+  background: var(--card-raised);
+  color: var(--text);
+  font-size: var(--fs-s);
+  font-weight: 600;
+  line-height: 1.4;
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.6);
+  transform: translateX(-50%);
+  animation: toast-in 0.2s ease-out;
+}
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+@media (min-width: 768px) {
+  .toast { bottom: 24px; }
+}
+
 /* Обещание быстрой реакции: стальная бирка у формы — иконка канала, срок или часы, статус */
 .reply {
   display: flex;
@@ -1613,6 +1697,8 @@ a.contacts__value {
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
     <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
     <!-- Технические иконки услуг (32×32): категорию выбирает build.js по названию -->
     <symbol id="s-engine" viewBox="0 0 32 32"><path d="M10 9h12M12 9V6.5h8V9"/><path d="M7 12h3V9h12v3h2.5l2 3H28v6h-1.5l-2 3H10l-3-3H5v-6h2z"/><circle cx="16" cy="18" r="2.6"/><path d="M12 14.5v1M20 14.5v1"/></symbol>
     <symbol id="s-oil" viewBox="0 0 32 32"><rect x="4.5" y="13" width="14" height="10" rx="1.5"/><path d="M8.5 13v-2.5h6V13M18.5 15.5l7.5-3.5v2.2l-7.5 5.3"/><path d="M26 21.6c0 1.4-.9 2.4-2 2.4s-2-1-2-2.4c0-1.4 2-3.6 2-3.6s2 2.2 2 3.6z"/></symbol>
@@ -2001,14 +2087,14 @@ a.contacts__value {
       <p class="section__note">Цены «от» из прайса 2ГИС, обновлён 23 декабря 2022. Точную стоимость уточняйте по телефону.</p>
     </section>
 
-    <!-- Рассчитать стоимость: собирает сообщение и открывает мессенджер (или звонок). Видна, когда работает скрипт. -->
+    <!-- Рассчитать стоимость: собирает текст заявки, копирует его и открывает выбранный мессенджер или звонок. Видна, когда работает скрипт. -->
 
     <section class="section" aria-labelledby="h-calc" data-calc-section hidden>
       <div class="calc reveal">
         <div class="calc__intro">
           <h2 class="calc__title" id="h-calc">Рассчитать стоимость ремонта</h2>
-          <p class="calc__lead">Заполните два поля и нажмите «Узнать цену» — откроется звонок в сервис, а ваш запрос останется на экране.</p>
-          <!-- Обещание быстрой реакции. Срок ответа — только для мессенджера; без него — часы звонков из графика. -->
+          <p class="calc__lead">Заполните два поля — соберём текст заявки. Его можно скопировать или назвать мастеру по телефону.</p>
+          <!-- Когда отвечают: часы работы из графика и статус «открыто сейчас». Сроков ответа не обещаем — их нет в данных. -->
           <div class="reply" role="note">
             <span class="reply__icon" aria-hidden="true"><svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-phone"/></svg></span>
             <div class="reply__body">
@@ -2018,7 +2104,7 @@ a.contacts__value {
             </div>
           </div>
         </div>
-        <form class="calc__form" data-calc data-messenger="" data-tel="+73452378798" novalidate>
+        <form class="calc__form" data-calc novalidate>
           <div class="field">
             <label class="field__label" for="calc-car">Марка и год авто</label>
             <input class="field__input" id="calc-car" name="car" type="text" maxlength="80" autocomplete="off" placeholder="Например, Kia Rio 2017" aria-describedby="calc-car-err">
@@ -2029,10 +2115,26 @@ a.contacts__value {
             <textarea class="field__input field__input--area" id="calc-job" name="job" rows="3" maxlength="300" placeholder="Например, замена тормозных колодок" aria-describedby="calc-job-err"></textarea>
             <p class="field__error" id="calc-job-err" hidden>Опишите, что нужно сделать</p>
           </div>
-          <button class="btn btn--call btn--wide" type="submit">
-            <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
-            Узнать цену
-          </button>
+          <!-- Текст заявки: собирается по мере ввода, по нажатию копируется -->
+          <div class="draft" data-draft hidden>
+            <p class="draft__label" id="draft-label">Текст заявки</p>
+            <button class="draft__text" type="button" data-draft-copy aria-labelledby="draft-label draft-body draft-action">
+              <span class="draft__body" id="draft-body" data-draft-text></span>
+              <span class="draft__action" id="draft-action">
+                <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg>
+                Скопировать
+              </span>
+            </button>
+          </div>
+          <!-- Куда отправить: мессенджеры компании и звонок. Первая кнопка — главная (оранжевая). -->
+          <div class="send" role="group" aria-label="Отправить заявку">
+
+            <a class="btn send__btn" href="tel:+73452378798" data-send data-type="tel">
+              <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
+              Позвонить напрямую
+            </a>
+
+          </div>
           <p class="calc__note" data-calc-note aria-live="polite" hidden></p>
         </form>
       </div>
@@ -2264,13 +2366,16 @@ a.contacts__value {
     <div class="modal__body">
       <p>Эта страница — демо-концепт сайта «Анатомия Авто». Она не принадлежит автосервису и не собирает персональные данные.</p>
       <h3 class="modal__h">Обращения</h3>
-      <p>Форма «Рассчитать стоимость» ничего не отправляет и не сохраняет: она только открывает звонок в сервис. Обращение вы отправляете сами, напрямую в автосервис, и дальше его обрабатывает сервис по своим правилам.</p>
+      <p>Форма «Рассчитать стоимость» ничего не отправляет и не сохраняет: она только собирает текст заявки, копирует его в буфер обмена вашего устройства и открывает звонок в сервис. Обращение вы отправляете сами, напрямую в автосервис, и дальше его обрабатывает сервис по своим правилам.</p>
       <h3 class="modal__h">Cookie и счётчики</h3>
       <p>Страница не ставит cookie и не подключает счётчики посещений. Хостинг может вести технические журналы запросов: IP-адрес, время, браузер.</p>
       <h3 class="modal__h">Удаление</h3>
       <p>Страницу удалим по первой просьбе представителя компании.</p>
     </div>
   </dialog>
+
+  <!-- Короткая подсказка «Текст заявки скопирован»: исчезает сама через 3 секунды -->
+  <div class="toast" data-toast role="status" aria-live="polite" hidden></div>
 
   <!-- Нижняя панель звонка на телефоне: закреплена всегда, где есть телефон -->
 
@@ -2375,10 +2480,58 @@ a.contacts__value {
       btn.addEventListener('animationend', function () { btn.classList.remove('is-pressed'); });
     });
 
-    // 4. Заявка из карточки услуги: в мессенджер — с готовым текстом.
+    // Общие помощники: копирование в буфер, подсказка-тост, ссылка мессенджера с текстом.
+    var toastEl = document.querySelector('[data-toast]');
+    var toastTimer;
+    var toast = function (text) {
+      if (!toastEl) return;
+      toastEl.textContent = text;
+      toastEl.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toastEl.hidden = true; }, 3000);
+    };
+    // Синхронное копирование срабатывает и тогда, когда следом открывается новая вкладка.
+    var copyText = function (text) {
+      var ok = false;
+      var active = document.activeElement;
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      document.body.removeChild(ta);
+      if (active && active.focus) active.focus({ preventScroll: true });
+      if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function () {});
+        ok = true;
+      }
+      return ok;
+    };
+    // Готовый текст подставляет только WhatsApp (wa.me/…?text=) и ссылки старого формата;
+    // в Telegram и Max текст вставляют из буфера.
+    var withText = function (href, type, msg) {
+      if (type === 'telegram' || type === 'max') return href;
+      return href + (href.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
+    };
+    var findHint = function (find) {
+      return find ? ' Найдите сервис в Max по номеру ' + find + '.' : '';
+    };
+
+    // 4. Заявка из карточки услуги: текст копируется, мессенджер открывается с ним.
     Array.prototype.forEach.call(document.querySelectorAll('.offer__cta[data-messenger]'), function (a) {
+      var base = a.getAttribute('href');
       var msg = 'Здравствуйте! Подскажите по стоимости: ' + a.dataset.service;
-      a.href = a.href + (a.href.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
+      a.href = withText(base, a.dataset.type, msg);
+      a.addEventListener('click', function () {
+        if (copyText(msg)) toast('Текст заявки скопирован.' + findHint(a.dataset.find));
+      });
+    });
+    // Кнопка мессенджера на первом экране: для Max по номеру — подсказка, где искать сервис.
+    Array.prototype.forEach.call(document.querySelectorAll('[data-msg-link]'), function (a) {
+      if (!a.dataset.find) return;
+      a.addEventListener('click', function () { toast(findHint(a.dataset.find).trim()); });
     });
     // 5. Фильтр услуг по категориям.
     var filter = document.querySelector('[data-filter]');
@@ -2397,49 +2550,89 @@ a.contacts__value {
       });
     }
 
-    // 6. Форма «Рассчитать стоимость»: сообщение в мессенджер или звонок.
+    // 6. Форма «Рассчитать стоимость»: текст заявки, копирование, отправка в мессенджер или звонок.
     var form = document.querySelector('[data-calc]');
     if (form) {
       document.querySelector('[data-calc-section]').hidden = false;
       var fields = [form.elements.car, form.elements.job];
       var note = form.querySelector('[data-calc-note]');
+      var draft = form.querySelector('[data-draft]');
+      var draftText = form.querySelector('[data-draft-text]');
+      var sendBtns = Array.prototype.slice.call(form.querySelectorAll('[data-send]'));
       var showError = function (el, on) {
         document.getElementById(el.id + '-err').hidden = !on;
         if (on) el.setAttribute('aria-invalid', 'true');
         else el.removeAttribute('aria-invalid');
       };
-      fields.forEach(function (el) {
-        el.addEventListener('input', function () {
-          if (el.value.trim()) showError(el, false);
-        });
-      });
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
+      var message = function () {
+        var car = fields[0].value.trim().replace(/[\s.,;:!]+$/, '');
+        var job = fields[1].value.trim();
+        return 'Здравствуйте! Хочу узнать стоимость ремонта. Авто: ' + (car || '…') + '. Задача: ' + (job || '…');
+      };
+      var validate = function () {
         var firstBad = null;
         fields.forEach(function (el) {
           var bad = !el.value.trim();
           showError(el, bad);
           if (bad && !firstBad) firstBad = el;
         });
-        if (firstBad) {
-          firstBad.focus();
-          return;
-        }
-        var car = fields[0].value.trim();
-        var job = fields[1].value.trim();
-        var m = form.dataset.messenger;
-        if (m) {
-          var msg = 'Здравствуйте! Хочу узнать стоимость ремонта.\nАвто: ' + car + '\nЧто нужно сделать: ' + job;
-          var url = m + (m.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(msg);
-          var w = window.open(url, '_blank');
-          if (w) w.opener = null;
-          else location.href = url;
-          note.textContent = 'Открываем мессенджер — сообщение уже набрано, осталось отправить.';
-        } else if (form.dataset.tel) {
-          note.textContent = 'Звоним в сервис. Назовите мастеру: ' + car + ' — ' + job + '.';
-          location.href = 'tel:' + form.dataset.tel;
-        }
+        if (firstBad) firstBad.focus();
+        return !firstBad;
+      };
+      var say = function (text) {
+        note.textContent = text;
         note.hidden = false;
+      };
+      var refresh = function () {
+        var any = fields.some(function (el) { return el.value.trim(); });
+        draft.hidden = !any;
+        draftText.textContent = message();
+      };
+      fields.forEach(function (el) {
+        el.addEventListener('input', function () {
+          if (el.value.trim()) showError(el, false);
+          refresh();
+        });
+      });
+      // Нажатие на текст заявки — копирование.
+      form.querySelector('[data-draft-copy]').addEventListener('click', function () {
+        toast(copyText(message()) ? 'Текст заявки скопирован' : 'Не удалось скопировать — выделите текст вручную');
+      });
+      // Enter в поле: проверяем, копируем текст и переводим фокус на главную кнопку отправки.
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!validate()) return;
+        if (copyText(message())) toast('Текст заявки скопирован');
+        if (sendBtns[0]) sendBtns[0].focus();
+      });
+      sendBtns.forEach(function (a) {
+        var base = a.getAttribute('href');
+        var type = a.dataset.type;
+        a.addEventListener('click', function (e) {
+          var filled = fields.every(function (el) { return el.value.trim(); });
+          if (type === 'tel') {
+            // Звонок работает и без формы; если поля заполнены — подсказываем, что сказать.
+            if (filled) {
+              copyText(message());
+              say('Звоним в сервис. Назовите мастеру: ' + fields[0].value.trim() + ' — ' + fields[1].value.trim() + '.');
+            }
+            return;
+          }
+          if (!validate()) {
+            e.preventDefault();
+            return;
+          }
+          var msg = message();
+          a.href = withText(base, type, msg);
+          var copied = copyText(msg);
+          var name = a.dataset.name || 'мессенджер';
+          if (type === 'whatsapp' || !type) {
+            say('Открываем ' + name + ' — сообщение уже набрано, осталось отправить.');
+          } else {
+            say('Открываем ' + name + '.' + findHint(a.dataset.find) + ' ' + (copied ? 'Текст заявки скопирован — вставьте его в чат и отправьте.' : 'Скопируйте текст заявки выше и вставьте его в чат.'));
+          }
+          if (copied) toast('Текст заявки скопирован');
+        });
       });
     }
 

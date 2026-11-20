@@ -162,9 +162,40 @@ function prepare(data, file) {
   data.yandex_url = data.address
     ? 'https://yandex.ru/maps/?text=' + encodeURIComponent([data.city, data.address].filter(Boolean).join(', '))
     : '';
+  // Мессенджеры компании: { type, phone } или { type, href } → ссылки и подписи кнопок.
+  if (Array.isArray(data.messengers)) data.messengers = data.messengers.map(messenger);
   // «Частые вопросы»: свои в JSON (`faq`) или собранные из фактов карточки.
   if (!Array.isArray(data.faq) || !data.faq.length) data.faq = buildFaq(data);
   return data;
+}
+
+// Telegram и WhatsApp открывают чат по номеру; у Max ссылки на чат по номеру нет:
+// без адреса профиля кнопка копирует заявку, открывает Max и подсказывает номер для поиска.
+const MESSENGERS = {
+  telegram: { name: 'Telegram', icon: 'i-send', url: (d) => `https://t.me/+${d}` },
+  whatsapp: { name: 'WhatsApp', icon: 'i-chat', url: (d) => `https://wa.me/${d}` },
+  max: { name: 'Max', icon: 'i-chat', url: () => 'https://max.ru/' },
+};
+function messenger(m) {
+  const kind = MESSENGERS[m.type];
+  // старый формат { label, href }: ссылка как есть, общая иконка чата
+  if (!kind) return { type: '', name: '', find_by: '', icon: 'i-chat', send_label: m.label, ...m };
+  const digits = String(m.phone || '').replace(/\D/g, '');
+  const href = m.href || (digits ? kind.url(digits) : '');
+  if (!href) throw new Error(`мессенджер ${m.type}: нужен phone или href`);
+  // У Max по номеру — подсказка, где искать сервис после открытия приложения.
+  const find = m.type === 'max' && !m.href && digits
+    ? `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`
+    : '';
+  return {
+    ...m,
+    href,
+    label: m.label || `Написать в ${kind.name}`,
+    send_label: `Отправить в ${kind.name}`,
+    icon: kind.icon,
+    name: kind.name,
+    find_by: find,
+  };
 }
 
 // Маршрут в 2ГИС: точка организации из data/2gis/{id}.json, начало маршрута — на выбор пользователя.
