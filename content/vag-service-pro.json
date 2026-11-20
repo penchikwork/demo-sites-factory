@@ -2,7 +2,8 @@
   "_source": {
     "list_entry": "https://2gis.ru/surgut/firm/70000001075315957 | local_businesses.md",
     "has_website": false,
-    "status": "Заполнено по сводке local_businesses.md (раздел Сургут); данных Catalog API нет, цены не опубликованы."
+    "status": "Заполнено по сводке local_businesses.md (раздел Сургут); данных Catalog API нет, цены не опубликованы.",
+    "messengers": "Telegram, WhatsApp и Max на номер +7 (929) 247-29-67 — по указанию владельца проекта от 20.11.2026. В карточке 2ГИС: WhatsApp, Telegram (Max в карточке не указан); адреса мессенджеров в карточке не даны, номер взят основной."
   },
   "slug": "vag-service-pro",
   "title": "Vag_Service_Pro — автосервис в Сургуте (демо-концепт)",
@@ -40,7 +41,20 @@
       "href": "+79292472967"
     }
   ],
-  "messengers": [],
+  "messengers": [
+    {
+      "type": "telegram",
+      "phone": "+79292472967"
+    },
+    {
+      "type": "whatsapp",
+      "phone": "+79292472967"
+    },
+    {
+      "type": "max",
+      "phone": "+79292472967"
+    }
+  ],
   "links": [],
   "map_url": "https://2gis.ru/surgut/firm/70000001075315957",
   "map_label": "Открыть в 2ГИС",

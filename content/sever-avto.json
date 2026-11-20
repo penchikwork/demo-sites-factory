@@ -2,7 +2,8 @@
   "_source": {
     "list_entry": "https://2gis.ru/surgut/firm/70000001097449213 | local_businesses.md",
     "has_website": false,
-    "status": "Заполнено по сводке local_businesses.md (раздел Сургут); данных Catalog API нет, цены не опубликованы."
+    "status": "Заполнено по сводке local_businesses.md (раздел Сургут); данных Catalog API нет, цены не опубликованы.",
+    "messengers": "Telegram, WhatsApp и Max на номер +7 (912) 819-99-88 — по указанию владельца проекта от 20.11.2026. В карточке 2ГИС: WhatsApp, Telegram, ВКонтакте, Одноклассники, Max; адреса мессенджеров в карточке не даны, номер взят основной."
   },
   "slug": "sever-avto",
   "title": "Север Авто — автосервис в Сургуте (демо-концепт)",
@@ -92,7 +93,20 @@
       "href": "+79128199988"
     }
   ],
-  "messengers": [],
+  "messengers": [
+    {
+      "type": "telegram",
+      "phone": "+79128199988"
+    },
+    {
+      "type": "whatsapp",
+      "phone": "+79128199988"
+    },
+    {
+      "type": "max",
+      "phone": "+79128199988"
+    }
+  ],
   "links": [],
   "map_url": "https://2gis.ru/surgut/firm/70000001097449213",
   "map_label": "Открыть в 2ГИС",

@@ -2,7 +2,8 @@
   "_source": {
     "list_entry": "https://2gis.ru/surgut/firm/70000001080119613 | local_businesses.md",
     "has_website": false,
-    "status": "Заполнено по сводке local_businesses.md (раздел Сургут); данных Catalog API нет, цены не опубликованы."
+    "status": "Заполнено по сводке local_businesses.md (раздел Сургут); данных Catalog API нет, цены не опубликованы.",
+    "messengers": "Telegram, WhatsApp и Max на номер +7 (904) 452-42-70 — по указанию владельца проекта от 20.11.2026. В карточке 2ГИС: WhatsApp, Telegram (Max в карточке не указан); адреса мессенджеров в карточке не даны, номер взят основной."
   },
   "slug": "car-so",
   "title": "Car.So — автосервис в Сургуте (демо-концепт)",
@@ -40,7 +41,20 @@
       "href": "+79044524270"
     }
   ],
-  "messengers": [],
+  "messengers": [
+    {
+      "type": "telegram",
+      "phone": "+79044524270"
+    },
+    {
+      "type": "whatsapp",
+      "phone": "+79044524270"
+    },
+    {
+      "type": "max",
+      "phone": "+79044524270"
+    }
+  ],
   "links": [],
   "map_url": "https://2gis.ru/surgut/firm/70000001080119613",
   "map_label": "Открыть в 2ГИС",
