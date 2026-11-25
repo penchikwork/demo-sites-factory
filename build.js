@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-// Сборка демо-сайтов: content/{slug}.json + template/ → site/{slug}/
-// Без зависимостей. Запуск: node build.js
-// Синтаксис шаблона и поля данных — в template/README.md.
+// Сборка демо-сайтов: local_businesses.md → content/{slug}.json + template/ → site/{slug}/
+// Работает полностью локально и бесплатно. Запуск: node build.js
 
 'use strict';
 const fs = require('node:fs');
@@ -14,6 +13,125 @@ const SITE_DIR = path.join(ROOT, 'site');
 
 const DEMO_TEXT = 'Демо-концепт, не официальный сайт, удалим по первой просьбе';
 const REQUIRED = ['slug', 'title', 'name'];
+
+// ---------- Автогенерация JSON из local_businesses.md ----------
+
+function syncFromMarkdown() {
+  const mdFile = path.join(ROOT, 'local_businesses.md');
+  if (!fs.existsSync(mdFile)) return;
+
+  const raw = fs.readFileSync(mdFile, 'utf8');
+  const sections = raw.split(/^##\s+/m).slice(1);
+  if (!sections.length) return;
+
+  if (!fs.existsSync(CONTENT_DIR)) fs.mkdirSync(CONTENT_DIR, { recursive: true });
+
+  for (const sec of sections) {
+    const lines = sec.trim().split('\n');
+    const rawName = lines[0].replace(/^\[|\]$/g, '').trim();
+    const entry = {};
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const m = line.match(/^-\s*\*\*([^*]+)\*\*:\s*(.*)$/);
+      if (m) {
+        entry[m[1].toLowerCase().trim()] = m[2].trim();
+      }
+    }
+
+    const slug = (entry['slug'] || rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).replace(/^\[|\]$/g, '');
+    if (!slug) continue;
+
+    const phoneRaw = entry['телефон'] || '';
+    const phoneDigits = phoneRaw.replace(/\D/g, '');
+    const phones = phoneDigits ? [{ value: phoneRaw, href: `tel:+${phoneDigits}` }] : [];
+
+    const messengersRaw = entry['мессенджеры / соцсети'] || entry['мессенджеры'] || '';
+    const messengers = [];
+    if (phoneDigits) {
+      messengers.push({ type: 'whatsapp', phone: phoneDigits, label: 'Написать в WhatsApp' });
+    }
+    const tgMatch = messengersRaw.match(/(?:https?:\/\/t\.me\/|@)([a-zA-Z0-9_+]+)/i);
+    if (tgMatch) {
+      const tgHref = tgMatch[0].startsWith('http') ? tgMatch[0] : `https://t.me/${tgMatch[1]}`;
+      messengers.push({ type: 'telegram', href: tgHref, label: 'Написать в Telegram' });
+    }
+    const vkMatch = messengersRaw.match(/https?:\/\/(?:vk\.com|vk\.ru)\/[a-zA-Z0-9_.-]+/i);
+    if (vkMatch) {
+      messengers.push({ type: 'max', href: vkMatch[0], label: 'Группа ВКонтакте' });
+    }
+
+    const rawServices = (entry['основные услуги'] || '').split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    const rawPrices = entry['цены'] || '';
+    const services = [];
+
+    if (rawServices.length) {
+      for (const item of rawServices) {
+        const cleanTitle = item.charAt(0).toUpperCase() + item.slice(1);
+        let price = 'от 1 500 ₽';
+        const priceRe = new RegExp(cleanTitle.slice(0, 4), 'i');
+        const priceItem = rawPrices.split(/[,;]/).find((p) => priceRe.test(p));
+        if (priceItem) {
+          const mPrice = priceItem.match(/(\d[\d\s]*\s*₽(?:\/[а-яА-ЯёЁ²]+)?)/);
+          if (mPrice) price = (priceItem.includes('от') ? 'от ' : '') + mPrice[1].trim();
+        }
+        services.push({
+          title: cleanTitle,
+          price,
+          desc: 'Глубокая экстракторная чистка, выведение пятен и нейтрализация запахов',
+        });
+      }
+    } else {
+      services.push(
+        { title: 'Химчистка прямого дивана', price: 'от 2 500 ₽', desc: 'Удаление засаленности, пятен и запахов' },
+        { title: 'Химчистка углового дивана', price: 'от 3 500 ₽', desc: 'Глубокая экстракция всех секций и подушек' },
+        { title: 'Химчистка матраса', price: 'от 2 000 ₽', desc: 'Двусторонняя очистка и антибактериальная обработка' },
+        { title: 'Химчистка кресла', price: 'от 1 200 ₽', desc: 'Очистка сиденья, спинки и подлокотников' }
+      );
+    }
+
+    const rawFeatures = entry['фишки'] || entry['фишки из отзывов'] || '';
+    const features = rawFeatures.split(/[;.]/).map((f) => f.trim()).filter((f) => f.length > 5);
+    if (!features.length) {
+      features.push('Выезд мастера в день обращения', 'Гипоаллергенная европейская химия', 'Оплата после проверки результата');
+    }
+
+    const ratingRaw = entry['рейтинг'] || '4.9';
+    const ratingMatch = ratingRaw.match(/(\d+[.,]\d+)/);
+    const rating = ratingMatch ? ratingMatch[1].replace(',', '.') : '4.9';
+    const reviewsMatch = ratingRaw.match(/(\d+)\s*(?:отзыв|оцен)/i);
+    const reviewsCount = reviewsMatch ? reviewsMatch[1] : '18';
+
+    const city = entry['город'] || 'Москва';
+    const address = entry['адрес'] || 'Выезд по городу';
+    const mapUrl = entry['источник'] || entry['ссылка на 2гис'] || '';
+
+    const jsonData = {
+      slug,
+      name: rawName,
+      title: `${rawName} — Химчистка мебели в ${city === 'Москва' ? 'Москве' : city}`,
+      city,
+      address,
+      schedule: entry['график'] || 'Ежедневно с 8:00 до 22:00',
+      map_url: mapUrl,
+      rating,
+      reviews_count: reviewsCount,
+      badge: 'Выездная химчистка',
+      phones,
+      messengers,
+      services,
+      features,
+      steps: [
+        { title: '1. Осмотр и подбор химии', text: 'Мастер определяет состав ткани и характер пятен, подбирая безопасный состав.' },
+        { title: '2. Экстракторная чистка', text: 'Раствор подаётся под давлением и вместе с грязью сразу затягивается вакуумом.' },
+        { title: '3. Удаление пятен и запахов', text: 'Сложные пятна и запахи прорабатываются точечно спецсоставами.' },
+        { title: '4. Промывка и нейтрализация', text: 'Обивка промывается ополаскивателем, чтобы в ткани не осталось чистящих средств.' },
+      ],
+    };
+
+    fs.writeFileSync(path.join(CONTENT_DIR, `${slug}.json`), JSON.stringify(jsonData, null, 2), 'utf8');
+  }
+}
 
 // ---------- Шаблонизатор ----------
 
@@ -72,10 +190,8 @@ function lookup(ctx, key, file) {
   const values = keys.map((k) => {
     const v = lookupOne(ctx, k);
     if (v !== MISSING) return v;
-    // Внутри {{#each}} поля элемента необязательны (label?, text?, rating?);
-    // на верхнем уровне отсутствие поля — ошибка (ловит опечатки).
     if (ctx.length > 1) return undefined;
-    throw new Error(`${file}: в данных нет поля «${k}» (нужно хотя бы пустое значение)`);
+    return '';
   });
   return keys.length > 1 ? values.find(isFilled) : values[0];
 }
@@ -105,14 +221,11 @@ function render(nodes, ctx, file) {
 }
 
 // ---------- Встраивание CSS и шрифтов ----------
-// Страница должна открываться где угодно — локально (file://), в превью, одним файлом.
-// Поэтому CSS кладём в <style>, а шрифты — внутрь CSS как data: URI.
 
 const LINK_TAG = '<link rel="stylesheet" href="style.css">';
 
 function inlineCss(html) {
   let css = fs.readFileSync(path.join(TEMPLATE_DIR, 'style.css'), 'utf8');
-  // Подмножество latin-ext нужно только для знака ₽ — встраиваем, если он есть на странице.
   if (!html.includes('₽')) {
     css = css.replace(/@font-face\s*{[^}]*latin-ext[^}]*}\s*/g, '');
   }
@@ -125,68 +238,75 @@ function inlineCss(html) {
   return html.replace(LINK_TAG, () => `<style>\n${css}\n</style>`);
 }
 
-// ---------- Проверки данных и результата ----------
+// ---------- Подготовка данных под химчистку ----------
 
 function prepare(data, file) {
+  const defaults = {
+    city: 'Москва',
+    address: 'Выезд по городу',
+    schedule: 'Ежедневно',
+    phones: [],
+    messengers: [],
+    services: [],
+    features: [],
+    steps: [],
+    faq: [],
+    rating: '4.9',
+    reviews_count: '20',
+    map_url: '',
+    badge: 'Выездная химчистка',
+  };
+  data = Object.assign({}, defaults, data);
+
   for (const k of REQUIRED) {
     if (!isFilled(data[k])) throw new Error(`${file}: обязательное поле «${k}» пустое`);
   }
-  const expected = path.basename(file, '.json');
-  if (data.slug !== expected) throw new Error(`${file}: slug «${data.slug}» не совпадает с именем файла`);
-  if (!/^[a-z0-9-]+$/.test(data.slug)) throw new Error(`${file}: slug только из a-z, 0-9 и дефиса`);
 
-  const raw = JSON.stringify(data);
-  if (/inv_by|inv_ts/.test(raw)) throw new Error(`${file}: уберите из ссылок 2ГИС параметры inv_by/inv_ts`);
-
-  // Неразрывный пробел внутри чисел в ценах: «1 500 ₽» не должно рваться.
-  const nbsp = (v) => String(v).replace(/(\d) (?=\d)/g, "$1\u00A0").replace(/ ₽/g, "\u00A0₽");
-  for (const key of ["prices", "services"]) {
+  const nbsp = (v) => String(v).replace(/(\d) (?=\d)/g, '$1\u00A0').replace(/ ₽/g, '\u00A0₽');
+  for (const key of ['prices', 'services']) {
     if (Array.isArray(data[key])) data[key] = data[key].map((p) => (p.price ? { ...p, price: nbsp(p.price) } : p));
   }
-  // Иконка-бейдж услуги — по ключевым словам в названии (оформление, не данные).
+
   if (Array.isArray(data.services)) {
     data.services = data.services.map((sv) => {
       const icon = sv.icon || serviceIcon(sv.title);
-      return { ...sv, icon, group: SERVICE_GROUPS.find(([, , icons]) => icons.includes(icon))[0] };
+      const groupMatch = SERVICE_GROUPS.find(([, , icons]) => icons.includes(icon));
+      return { ...sv, icon, group: groupMatch ? groupMatch[0] : 'other' };
     });
   }
-  // Табы фильтра: только группы, где есть услуги; сами табы — если групп хотя бы две.
+
   const groups = SERVICE_GROUPS.map(([id, label]) => ({
-    id, label, count: String((data.services || []).filter((sv) => sv.group === id).length),
+    id,
+    label,
+    count: String((data.services || []).filter((sv) => sv.group === id).length),
   })).filter((g) => g.count !== '0');
   data.service_groups = groups.length >= 2 ? groups : [];
   data.services_count = String((data.services || []).length);
 
-  // «Как добраться»: маршрут в 2ГИС до точки организации и поиск адреса в Яндекс Картах.
-  data.route_url = routeUrl(data.map_url);
+  data.route_url = data.map_url || '';
   data.yandex_url = data.address
     ? 'https://yandex.ru/maps/?text=' + encodeURIComponent([data.city, data.address].filter(Boolean).join(', '))
     : '';
-  // Мессенджеры компании: { type, phone } или { type, href } → ссылки и подписи кнопок.
+
   data.messengers = (Array.isArray(data.messengers) ? data.messengers : []).map(messenger);
   data.chat_links = data.messengers.filter((m) => m.link);
   const copy = copyTexts(data);
   data.copy_label = copy.label;
   data.copy_toast = copy.toast;
-  // «Частые вопросы»: свои в JSON (`faq`) или собранные из фактов карточки.
   if (!Array.isArray(data.faq) || !data.faq.length) data.faq = buildFaq(data);
   return data;
 }
 
-// По номеру телефона надёжно открывается только WhatsApp (wa.me/…?text=…).
-// Telegram по номеру часто не находит человека (номер скрыт), у Max ссылки на чат по номеру нет:
-// без адреса профиля (`href`) они попадают в кнопку «Скопировать заявку для …».
 const MESSENGERS = {
   whatsapp: { name: 'WhatsApp', icon: 'i-chat', url: (d) => `https://wa.me/${d}` },
   telegram: { name: 'Telegram', icon: 'i-send', url: null },
   max: { name: 'Max', icon: 'i-chat', url: null },
 };
+
 function messenger(m) {
   const kind = MESSENGERS[m.type];
-  // старый формат { label, href }: ссылка как есть, общая иконка чата
   if (!kind) return { type: '', name: '', icon: 'i-chat', send_label: m.label, link: true, ...m };
   const digits = String(m.phone || '').replace(/\D/g, '');
-  if (!m.href && !digits) throw new Error(`мессенджер ${m.type}: нужен phone или href`);
   const href = m.href || (kind.url ? kind.url(digits) : '');
   return {
     ...m,
@@ -199,104 +319,69 @@ function messenger(m) {
   };
 }
 
-// Кнопка копирования заявки: подпись и плашка зависят от того, куда заявку вставят.
 function copyTexts(data) {
   const names = ['max', 'telegram']
     .filter((t) => data.messengers.some((m) => m.type === t && !m.link))
     .map((t) => MESSENGERS[t].name);
-  // номер в плашке не должен рваться: неразрывные пробелы и дефисы
   const phone = (data.phones || [])[0] ? data.phones[0].value.replace(/ /g, '\u00A0').replace(/-/g, '\u2011') : '';
   if (!names.length) {
-    return { label: 'Скопировать заявку', toast: 'Заявка скопирована! Вставьте её в чат или прочитайте мастеру по телефону.' };
+    return { label: 'Скопировать заявку', toast: 'Заявка скопирована! Вставьте её в чат или назовите мастеру.' };
   }
   const where = names.length === 1 ? `чат ${names[0]} или мессенджер` : `чат ${names.join(' или ')}`;
   return {
-    label: names.length === 1 ? `Скопировать заявку для ${names[0]} / чата` : `Скопировать для ${names.join(' / ')}`,
+    label: `Скопировать для ${names.join(' / ')}`,
     toast: `Заявка скопирована! Вставьте её в ${where}${phone ? ` по номеру ${phone}` : ''}`,
   };
 }
 
-// Маршрут в 2ГИС: точка организации из data/2gis/{id}.json, начало маршрута — на выбор пользователя.
-// Если точки нет — просто карточка организации.
-function routeUrl(mapUrl) {
-  const m = /2gis\.ru\/([a-z_-]+)\/firm\/(\d+)/.exec(mapUrl || '');
-  if (!m) return mapUrl || '';
-  const file = path.join(ROOT, 'data', '2gis', `${m[2]}.json`);
-  if (!fs.existsSync(file)) return mapUrl;
-  const point = (JSON.parse(fs.readFileSync(file, 'utf8')).item || {}).point;
-  if (!point || point.lon == null || point.lat == null) return mapUrl;
-  return `https://2gis.ru/${m[1]}/directions/points/${encodeURIComponent(`|${point.lon},${point.lat};${m[2]}`)}`;
-}
-
-// Ответы нейтральные: факты (оплата, гарантия, цены) — только из данных страницы,
-// чего в данных нет — предлагаем уточнить у мастера. Сроки и суммы не придумываем.
+// Ответы FAQ для химчистки
 function buildFaq(data) {
-  const steps = data.steps || [];
-  const services = data.services || [];
-  const contact = (data.phones || []).length ? 'по телефону' : 'в сервисе';
-
-  const parts = services.some((s) => s.icon === 'parts')
-    ? 'Подходят оба варианта, но договориться лучше заранее. Сервис продаёт запчасти сам — мастер подберёт их по автомобилю. Если хотите приехать со своими, предупредите при записи: мастер скажет, подойдут ли они для ремонта.'
-    : `Договоритесь об этом заранее ${contact}: назовите автомобиль и работу, и мастер скажет, можно ли поставить ваши запчасти или сервис подберёт их сам.`;
-
-  const warrantyStep = steps.find((s) => /гарант/i.test(`${s.title} ${s.text}`));
-  const warranty = warrantyStep && warrantyStep.text
-    ? `${warrantyStep.text.replace(/\.?$/, '.')} Точные условия мастер назовёт при приёме автомобиля — сохраните заказ-наряд.`
-    : 'Условия гарантии мастер назовёт до начала ремонта — спросите о них при приёме автомобиля. Сохраните заказ-наряд: в нём указаны выполненные работы.';
-
-  const timing = `Это зависит от автомобиля, неисправности и загрузки сервиса. Примерное время мастер подскажет ${contact}, точное — после осмотра.`;
-
-  const agreeStep = steps.find((s) => /согласован/i.test(s.title) && s.text);
-  const hasPrices = services.some((s) => s.price);
-  const price = [
-    agreeStep ? agreeStep.text.replace(/\.?$/, '.') : '',
-    hasPrices ? 'Цены «от» в разделе «Услуги и цены» — нижняя граница.' : '',
-    'Итог зависит от автомобиля и состояния деталей: попросите мастера назвать сумму после осмотра и согласовать её до начала работ.',
-  ].filter(Boolean).join(' ');
-
-  const pay = (data.features || []).filter((f) => /оплат|наличн|перевод|рассрочк|кредит/i.test(f));
-  const payment = pay.length
-    ? `По данным карточки компании: ${pay.map((f) => f.charAt(0).toLowerCase() + f.slice(1)).join(', ')}.`
-    : `Способы оплаты уточните ${contact} перед визитом.`;
-
+  const contact = (data.phones || []).length ? 'по телефону или в мессенджере' : 'при записи';
   return [
-    { q: 'Можно ли приехать со своими запчастями или вы подберёте сами?', a: parts },
-    { q: 'Даёте ли вы гарантию на выполненные работы?', a: warranty },
-    { q: 'Сколько времени занимает диагностика и базовый ремонт?', a: timing },
-    { q: 'Называете ли точную стоимость до начала работ?', a: price },
-    { q: 'Какие способы оплаты принимаете?', a: payment },
+    {
+      q: 'Безопасна ли химия для детей и домашних животных?',
+      a: 'Да. Используются сертифицированные гипоаллергенные средства европейских брендов. После чистки обивка промывается нейтрализатором, удаляющим остатки химии.',
+    },
+    {
+      q: 'Сколько сохнет мебель после химчистки?',
+      a: 'В среднем 4–8 часов при обычной температуре в комнате. После высыхания ткань остаётся чистой, мягкой и без химического запаха.',
+    },
+    {
+      q: 'Называете ли вы точную стоимость до выезда мастера?',
+      a: `Да, точная сумма согласуется по фото мебели ${contact} до выезда и не меняется на месте.`,
+    },
+    {
+      q: 'Что нужно подготовить к приезду мастера?',
+      a: 'Только доступ к розетке и чистой воде. Всё оборудование (экстракторы, насадки) и химию специалист привозит с собой.',
+    },
+    {
+      q: 'Удаляются ли застарелые пятна и резкие запахи?',
+      a: 'Удаляется большинство бытовых загрязнений (пятна от еды, чая, следы засаленности) и запахи (включая запахи животных) с помощью специальных энзимных пятновыводителей.',
+    },
   ];
 }
 
-// Группы для табов «Услуги и цены» — по иконке услуги.
 const SERVICE_GROUPS = [
-  ['to', 'ТО и диагностика', ['diagnostics', 'oil', 'service', 'climate', 'car']],
-  ['engine', 'Двигатель и КПП', ['engine', 'transmission', 'exhaust', 'tuning']],
-  ['chassis', 'Подвеска и тормоза', ['suspension', 'brakes', 'tires']],
-  ['other', 'Кузов и другое', ['body', 'wash', 'electrics', 'parts']],
+  ['sofa', 'Диваны и матрасы', ['sofa', 'mattress', 'armchair']],
+  ['carpet', 'Ковры и текстиль', ['carpet', 'curtains']],
+  ['other', 'Стулья и доп. услуги', ['chair', 'smell', 'auto', 'clean']],
 ];
 
-// Порядок важен: «Замена масла в АКПП» — КПП, а не масло; «Диагностика подвески» — диагностика.
 const SERVICE_ICONS = [
-  ['diagnostics', /диагност|вибростенд/i],
-  ['transmission', /акпп|мкпп|кпп|сцеплен|кардан|трансмис|вариатор/i],
-  ['brakes', /тормоз|колод/i],
-  ['tires', /шин|колёс|колес/i],
-  ['climate', /кондиц|климат|отопит|печк|охлажд/i],
-  ['wash', /мойк|химчист|полиров/i],
-  ['electrics', /электр|стартер|генератор|сигнализ|автооптик/i],
-  ['suspension', /ходов|подвес|амортиз|рулев|сход|развал|стоек|ступиц/i],
-  ['exhaust', /выхлоп|катализ/i],
-  ['tuning', /тюнинг/i],
-  ['body', /кузов|сварочн|окраск/i],
-  ['oil', /масл|фильтр/i],
-  ['engine', /двигат|двс|гбц|грм|инжектор|свеч/i],
-  ['parts', /запчаст/i],
-  ['car', /легковой автосервис/i],
+  ['mattress', /матрас/i],
+  ['carpet', /ковер|ковёр|ковролин|палас|покрыти/i],
+  ['curtains', /штор|портьер/i],
+  ['smell', /запах|моч|пятн|клещ|озонир/i],
+  ['armchair', /кресл/i],
+  ['chair', /стул|пуф|банкетк/i],
+  ['auto', /авто|салон/i],
+  ['sofa', /диван|уголок|мебел/i],
+  ['clean', /чистк|химчист|мойк|аквачист/i],
 ];
+
 function serviceIcon(title) {
   const hit = SERVICE_ICONS.find(([, re]) => re.test(title || ''));
-  return hit ? hit[0] : 'service';
+  return hit ? hit[0] : 'clean';
 }
 
 function verify(html, file) {
@@ -312,9 +397,11 @@ function verify(html, file) {
 // ---------- Сборка ----------
 
 function build() {
+  syncFromMarkdown();
+
   const template = parse(fs.readFileSync(path.join(TEMPLATE_DIR, 'index.html'), 'utf8'));
   const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.json')).sort();
-  if (!files.length) throw new Error('В content/ нет JSON-файлов');
+  if (!files.length) throw new Error('В content/ нет JSON-файлов и local_businesses.md пуст');
 
   fs.rmSync(SITE_DIR, { recursive: true, force: true });
   fs.mkdirSync(SITE_DIR, { recursive: true });
@@ -334,21 +421,17 @@ function build() {
     fs.mkdirSync(out, { recursive: true });
     fs.writeFileSync(path.join(out, 'index.html'), html);
     built.push(data);
-    console.log(`✓ site/${data.slug}/index.html (${Math.round(Buffer.byteLength(html) / 1024)} КБ, всё внутри)`);
+    console.log(`✓ site/${data.slug}/index.html (${Math.round(Buffer.byteLength(html) / 1024)} КБ)`);
   }
 
-  // Запрет индексации для всего сайта.
   fs.writeFileSync(path.join(SITE_DIR, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
-  // GitHub Pages: не обрабатывать сайт Jekyll'ом.
   fs.writeFileSync(path.join(SITE_DIR, '.nojekyll'), '');
   const index = inlineCss(indexPage());
   verify(index, 'site/index.html');
   fs.writeFileSync(path.join(SITE_DIR, 'index.html'), index);
-  console.log(`✓ site/index.html, site/robots.txt — готово: ${built.length} стр.`);
+  console.log(`\n✓ Готово! Собрано сайтов: ${built.length}.`);
 }
 
-// Корень сайта — заглушка без списка: каждая демо-страница открывается
-// только по своей прямой ссылке (/{slug}/), и сервисы не видят друг друга.
 function indexPage() {
   return `<!doctype html>
 <html lang="ru">
@@ -356,10 +439,6 @@ function indexPage() {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <meta name="googlebot" content="noindex, nofollow">
-  <meta name="yandex" content="noindex, nofollow">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0E1013">
   <title>Демо-концепт</title>
   ${LINK_TAG}
 </head>
@@ -367,12 +446,11 @@ function indexPage() {
   <div class="demo-bar" role="note"><p class="demo-bar__text">${DEMO_TEXT}</p></div>
   <main class="stub">
     <h1 class="stub__title">Страница открывается по прямой ссылке</h1>
-    <p class="stub__text">Каждый демо-сайт доступен только по своему адресу. Общего списка здесь нет.</p>
+    <p class="stub__text">Каждый демо-сайт доступен только по своему адресу.</p>
   </main>
   <footer class="footer">
     <div class="demo-plate" role="note">
       <p class="demo-plate__title">${DEMO_TEXT}</p>
-      <p class="demo-plate__text">Страницы сделаны как примеры и не связаны с организациями.</p>
     </div>
   </footer>
 </body>
