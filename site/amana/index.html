@@ -1797,6 +1797,7 @@ a.contacts__value {
         <h1 class="sign__name">Амана</h1>
         <p class="sign__tagline">12 постов и более 1 000 м²: диагностика, ремонт двигателей и КПП, шиномонтаж</p>
 
+
         <ul class="sign__facts">
 
           <li class="sign__fact">
@@ -1807,6 +1808,7 @@ a.contacts__value {
             </span>
           </li>
 
+
           <li class="sign__fact">
             <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
             <span>
@@ -1816,6 +1818,7 @@ a.contacts__value {
           </li>
 
         </ul>
+
 
         <!-- Главное действие — звонок. Без телефона главной становится 2ГИС. -->
 
@@ -1831,7 +1834,9 @@ a.contacts__value {
             Написать в WhatsApp
           </a>
 
+
         </div>
+
 
         <!-- Цифры крупно: только из данных (рейтинг, оценки, факт компании) -->
 
@@ -1915,32 +1920,22 @@ a.contacts__value {
 
     </section>
 
+
     <!-- Услуги и цены: прайс-лист. Цена только из данных, иначе «по запросу». -->
 
     <section class="section" aria-labelledby="h-services">
       <h2 class="section__title" id="h-services">Услуги и цены</h2>
 
-      <!-- Фильтр прайса по категориям: появляется, когда работает скрипт -->
-      <div class="filter" role="group" aria-label="Категории услуг" data-filter hidden>
-        <button class="filter__btn" type="button" aria-pressed="true" data-group="all">Все <span class="filter__count">11</span></button>
-
-        <button class="filter__btn" type="button" aria-pressed="false" data-group="to">ТО и диагностика <span class="filter__count">4</span></button>
-
-        <button class="filter__btn" type="button" aria-pressed="false" data-group="engine">Двигатель и КПП <span class="filter__count">5</span></button>
-
-        <button class="filter__btn" type="button" aria-pressed="false" data-group="chassis">Подвеска и тормоза <span class="filter__count">2</span></button>
-
-      </div>
-
       <ul class="offers">
 
-        <li class="offer reveal" data-group="chassis">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-tires"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Шиномонтаж</h3>
             <p class="offer__price">от 500 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Шиномонтаж" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -1951,13 +1946,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="to">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-oil"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Замена масла</h3>
             <p class="offer__price">от 1 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Замена масла" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -1968,13 +1964,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="to">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-diagnostics"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Компьютерная диагностика</h3>
             <p class="offer__price">от 1 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Компьютерная диагностика" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -1985,13 +1982,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="engine">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-exhaust"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Ремонт выхлопных систем</h3>
             <p class="offer__price">от 1 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Ремонт выхлопных систем" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2002,13 +2000,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="chassis">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-suspension"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Развал-схождение</h3>
             <p class="offer__price">от 2 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Развал-схождение" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2019,13 +2018,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="engine">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-engine"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Предпусковые подогреватели двигателя</h3>
             <p class="offer__price">от 3 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Предпусковые подогреватели двигателя" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2036,13 +2036,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="engine">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-transmission"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Ремонт МКПП</h3>
             <p class="offer__price">от 7 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Ремонт МКПП" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2053,13 +2054,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="engine">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-engine"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Ремонт бензиновых двигателей</h3>
             <p class="offer__price">от 50 000 ₽</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Ремонт бензиновых двигателей" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2070,13 +2072,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="to">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-service"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Эндоскопия</h3>
             <p class="offer__price offer__price--ask">по запросу</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Эндоскопия" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2087,13 +2090,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="to">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-diagnostics"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Вибростенд</h3>
             <p class="offer__price offer__price--ask">по запросу</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Вибростенд" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2104,13 +2108,14 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="engine">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-engine"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Замена ГРМ</h3>
             <p class="offer__price offer__price--ask">по запросу</p>
           </div>
+
 
           <!-- Вся карточка кликабельна: мессенджер-ссылка с готовым текстом, иначе звонок -->
           <a class="offer__cta" href="https://wa.me/79222527262" data-service="Замена ГРМ" data-messenger data-type="whatsapp" target="_blank" rel="noopener nofollow">
@@ -2124,6 +2129,7 @@ a.contacts__value {
       </ul>
       <p class="section__note">Стартовые цены «от» — из карточки 2ГИС на 20.11.2026. Итоговую стоимость мастер назовёт после осмотра; уточняйте по телефону.</p>
     </section>
+
 
     <!-- Рассчитать стоимость: быстрый выбор работ чипсами, текст заявки, WhatsApp, копирование для Max / Telegram и звонок. Видна, когда работает скрипт. -->
 
@@ -2175,21 +2181,25 @@ a.contacts__value {
               Отправить в WhatsApp
             </a>
 
+
             <button class="btn send__btn" type="button" data-copy-request data-toast-text="Заявка скопирована! Вставьте её в чат Max или мессенджер по номеру +7 (922) 252‑72‑62">
               <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg>
-              Скопировать заявку для Max / чата
+              Скопировать для Max
             </button>
+
 
             <a class="btn send__btn" href="tel:+79222527262" data-send data-type="tel">
               <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
               Позвонить напрямую
             </a>
 
+
           </div>
           <p class="calc__note" data-calc-note aria-live="polite" hidden></p>
         </form>
       </div>
     </section>
+
 
     <!-- Как проходит работа: шаги собраны из фактов о сервисе (гарантия — только из источника) -->
 
@@ -2232,7 +2242,9 @@ a.contacts__value {
       </ol>
     </section>
 
+
     <!-- Что хвалят клиенты: только пересказ отзывов 2ГИС, без имён авторов -->
+
 
     <!-- Об автосервисе и удобства -->
 
@@ -2244,8 +2256,10 @@ a.contacts__value {
           <p>Автосервис в Сургуте на проспекте Набережном: 12 постов на площади более 1 000 м². По карточке 2ГИС здесь делают компьютерную диагностику, эндоскопию, проверку на вибростенде, ремонт бензиновых двигателей и МКПП, выхлопных систем, замену масла и ГРМ, шиномонтаж и развал-схождение, ставят предпусковые подогреватели.</p><p>Открыто ежедневно с 9:00 до 20:00. В 2ГИС у сервиса рейтинг 5,0 по 21 оценке.</p>
         </div>
 
+
       </div>
     </section>
+
 
     <!-- Частые вопросы: аккордеон на <details>, открывается по клику и без скрипта.
          Ответы собирает build.js только из фактов карточки (или берёт faq из JSON). -->
@@ -2256,46 +2270,47 @@ a.contacts__value {
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Можно ли приехать со своими запчастями или вы подберёте сами?</span>
+            <span class="faq__q-text">Безопасна ли химия для детей и домашних животных?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Договоритесь об этом заранее по телефону: назовите автомобиль и работу, и мастер скажет, можно ли поставить ваши запчасти или сервис подберёт их сам.</p></div>
+          <div class="faq__a"><p>Да. Используются сертифицированные гипоаллергенные средства европейских брендов. После чистки обивка промывается нейтрализатором, удаляющим остатки химии.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Даёте ли вы гарантию на выполненные работы?</span>
+            <span class="faq__q-text">Сколько сохнет мебель после химчистки?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Условия гарантии мастер назовёт до начала ремонта — спросите о них при приёме автомобиля. Сохраните заказ-наряд: в нём указаны выполненные работы.</p></div>
+          <div class="faq__a"><p>В среднем 4–8 часов при обычной температуре в комнате. После высыхания ткань остаётся чистой, мягкой и без химического запаха.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Сколько времени занимает диагностика и базовый ремонт?</span>
+            <span class="faq__q-text">Называете ли вы точную стоимость до выезда мастера?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Это зависит от автомобиля, неисправности и загрузки сервиса. Примерное время мастер подскажет по телефону, точное — после осмотра.</p></div>
+          <div class="faq__a"><p>Да, точная сумма согласуется по фото мебели по телефону или в мессенджере до выезда и не меняется на месте.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Называете ли точную стоимость до начала работ?</span>
+            <span class="faq__q-text">Что нужно подготовить к приезду мастера?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Цены «от» в разделе «Услуги и цены» — нижняя граница. Итог зависит от автомобиля и состояния деталей: попросите мастера назвать сумму после осмотра и согласовать её до начала работ.</p></div>
+          <div class="faq__a"><p>Только доступ к розетке и чистой воде. Всё оборудование (экстракторы, насадки) и химию специалист привозит с собой.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Какие способы оплаты принимаете?</span>
+            <span class="faq__q-text">Удаляются ли застарелые пятна и резкие запахи?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Способы оплаты уточните по телефону перед визитом.</p></div>
+          <div class="faq__a"><p>Удаляется большинство бытовых загрязнений (пятна от еды, чая, следы засаленности) и запахи (включая запахи животных) с помощью специальных энзимных пятновыводителей.</p></div>
         </details>
 
       </div>
     </section>
+
 
     <!-- Как добраться: карточка проезда (адрес крупно, график, маршрут) и контакты -->
 
@@ -2328,6 +2343,7 @@ a.contacts__value {
             Построить маршрут в 2ГИС
           </a>
 
+
           <a class="btn btn--ghost" href="https://yandex.ru/maps/?text=%D0%A1%D1%83%D1%80%D0%B3%D1%83%D1%82%2C%20%D0%BF%D1%80%D0%BE%D1%81%D0%BF%D0%B5%D0%BA%D1%82%20%D0%9D%D0%B0%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D0%BD%D1%8B%D0%B9%2C%207%2F1" target="_blank" rel="noopener nofollow">
             <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-map"/></svg>
             Открыть в Яндекс Картах
@@ -2335,6 +2351,7 @@ a.contacts__value {
 
         </div>
       </div>
+
 
       <address class="card contacts reveal">
 
@@ -2345,6 +2362,8 @@ a.contacts__value {
             <a class="contacts__value" href="tel:+79222527262">+7 (922) 252-72-62</a>
           </span>
         </p>
+
+
 
         <p class="contacts__row">
           <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
@@ -2358,6 +2377,7 @@ a.contacts__value {
 
       </div>
     </section>
+
 
   </main>
 
@@ -2407,6 +2427,8 @@ a.contacts__value {
     </a>
 
   </nav>
+
+
 
   <!-- Мини-скрипт без библиотек: статус «открыто сейчас», появление карточек,
        отклик главной кнопки, текст заявки в мессенджер. Без него страница работает целиком. -->

@@ -1785,6 +1785,7 @@ a.contacts__value {
         <h1 class="sign__name">Север Авто</h1>
         <p class="sign__tagline">АКПП и другие узлы — контрактные и новые</p>
 
+
         <ul class="sign__facts">
 
           <li class="sign__fact">
@@ -1795,6 +1796,7 @@ a.contacts__value {
             </span>
           </li>
 
+
           <li class="sign__fact">
             <svg class="icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
             <span>
@@ -1804,6 +1806,7 @@ a.contacts__value {
           </li>
 
         </ul>
+
 
         <!-- Главное действие — звонок. Без телефона главной становится 2ГИС. -->
 
@@ -1819,7 +1822,9 @@ a.contacts__value {
             Написать в WhatsApp
           </a>
 
+
         </div>
+
 
         <!-- Цифры крупно: только из данных (рейтинг, оценки, факт компании) -->
 
@@ -1903,25 +1908,16 @@ a.contacts__value {
 
     </section>
 
+
     <!-- Услуги и цены: прайс-лист. Цена только из данных, иначе «по запросу». -->
 
     <section class="section" aria-labelledby="h-services">
       <h2 class="section__title" id="h-services">Услуги и цены</h2>
 
-      <!-- Фильтр прайса по категориям: появляется, когда работает скрипт -->
-      <div class="filter" role="group" aria-label="Категории услуг" data-filter hidden>
-        <button class="filter__btn" type="button" aria-pressed="true" data-group="all">Все <span class="filter__count">3</span></button>
-
-        <button class="filter__btn" type="button" aria-pressed="false" data-group="to">ТО и диагностика <span class="filter__count">2</span></button>
-
-        <button class="filter__btn" type="button" aria-pressed="false" data-group="engine">Двигатель и КПП <span class="filter__count">1</span></button>
-
-      </div>
-
       <ul class="offers">
 
-        <li class="offer reveal" data-group="engine">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-transmission"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">АКПП — контрактные и новые</h3>
@@ -1938,8 +1934,8 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="to">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-service"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-clean"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Другие узлы — контрактные и новые</h3>
@@ -1956,8 +1952,8 @@ a.contacts__value {
           </div>
         </li>
 
-        <li class="offer reveal" data-group="to">
-          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-service"/></svg></span>
+        <li class="offer reveal" data-group="other">
+          <span class="offer__badge" aria-hidden="true"><svg class="offer__icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#s-auto"/></svg></span>
           <div class="offer__body">
           <div class="offer__head">
             <h3 class="offer__title">Автосервис</h3>
@@ -1977,6 +1973,7 @@ a.contacts__value {
       </ul>
       <p class="section__note">Стартовые цены в карточке 2ГИС не опубликованы — стоимость по запросу, уточняйте по телефону.</p>
     </section>
+
 
     <!-- Рассчитать стоимость: быстрый выбор работ чипсами, текст заявки, WhatsApp, копирование для Max / Telegram и звонок. Видна, когда работает скрипт. -->
 
@@ -2028,21 +2025,25 @@ a.contacts__value {
               Отправить в WhatsApp
             </a>
 
+
             <button class="btn send__btn" type="button" data-copy-request data-toast-text="Заявка скопирована! Вставьте её в чат Max или Telegram по номеру +7 (912) 819‑99‑88">
               <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg>
               Скопировать для Max / Telegram
             </button>
+
 
             <a class="btn send__btn" href="tel:+79128199988" data-send data-type="tel">
               <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>
               Позвонить напрямую
             </a>
 
+
           </div>
           <p class="calc__note" data-calc-note aria-live="polite" hidden></p>
         </form>
       </div>
     </section>
+
 
     <!-- Как проходит работа: шаги собраны из фактов о сервисе (гарантия — только из источника) -->
 
@@ -2077,6 +2078,7 @@ a.contacts__value {
       </ol>
     </section>
 
+
     <!-- Что хвалят клиенты: только пересказ отзывов 2ГИС, без имён авторов -->
 
     <section class="section" aria-labelledby="h-reviews">
@@ -2102,6 +2104,7 @@ a.contacts__value {
       <p class="section__note">Пересказ отзывов из 2ГИС, без имён авторов.</p>
     </section>
 
+
     <!-- Об автосервисе и удобства -->
 
     <section class="section" aria-labelledby="h-about">
@@ -2111,6 +2114,7 @@ a.contacts__value {
         <div class="prose">
           <p>Автосервис в Сургуте на улице Крылова, открыт ежедневно с 9:00 до 20:00. В карточке 2ГИС указаны АКПП и другие узлы — контрактные и новые.</p><p>В 2ГИС у сервиса рейтинг 4,7 по 128 оценкам и 92 отзыва.</p>
         </div>
+
 
         <ul class="features">
 
@@ -2124,6 +2128,7 @@ a.contacts__value {
       </div>
     </section>
 
+
     <!-- Частые вопросы: аккордеон на <details>, открывается по клику и без скрипта.
          Ответы собирает build.js только из фактов карточки (или берёт faq из JSON). -->
 
@@ -2133,46 +2138,47 @@ a.contacts__value {
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Можно ли приехать со своими запчастями или вы подберёте сами?</span>
+            <span class="faq__q-text">Безопасна ли химия для детей и домашних животных?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Договоритесь об этом заранее по телефону: назовите автомобиль и работу, и мастер скажет, можно ли поставить ваши запчасти или сервис подберёт их сам.</p></div>
+          <div class="faq__a"><p>Да. Используются сертифицированные гипоаллергенные средства европейских брендов. После чистки обивка промывается нейтрализатором, удаляющим остатки химии.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Даёте ли вы гарантию на выполненные работы?</span>
+            <span class="faq__q-text">Сколько сохнет мебель после химчистки?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Условия гарантии мастер назовёт до начала ремонта — спросите о них при приёме автомобиля. Сохраните заказ-наряд: в нём указаны выполненные работы.</p></div>
+          <div class="faq__a"><p>В среднем 4–8 часов при обычной температуре в комнате. После высыхания ткань остаётся чистой, мягкой и без химического запаха.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Сколько времени занимает диагностика и базовый ремонт?</span>
+            <span class="faq__q-text">Называете ли вы точную стоимость до выезда мастера?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Это зависит от автомобиля, неисправности и загрузки сервиса. Примерное время мастер подскажет по телефону, точное — после осмотра.</p></div>
+          <div class="faq__a"><p>Да, точная сумма согласуется по фото мебели по телефону или в мессенджере до выезда и не меняется на месте.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Называете ли точную стоимость до начала работ?</span>
+            <span class="faq__q-text">Что нужно подготовить к приезду мастера?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Итог зависит от автомобиля и состояния деталей: попросите мастера назвать сумму после осмотра и согласовать её до начала работ.</p></div>
+          <div class="faq__a"><p>Только доступ к розетке и чистой воде. Всё оборудование (экстракторы, насадки) и химию специалист привозит с собой.</p></div>
         </details>
 
         <details class="faq__item">
           <summary class="faq__q">
-            <span class="faq__q-text">Какие способы оплаты принимаете?</span>
+            <span class="faq__q-text">Удаляются ли застарелые пятна и резкие запахи?</span>
             <span class="faq__mark" aria-hidden="true"></span>
           </summary>
-          <div class="faq__a"><p>Способы оплаты уточните по телефону перед визитом.</p></div>
+          <div class="faq__a"><p>Удаляется большинство бытовых загрязнений (пятна от еды, чая, следы засаленности) и запахи (включая запахи животных) с помощью специальных энзимных пятновыводителей.</p></div>
         </details>
 
       </div>
     </section>
+
 
     <!-- Как добраться: карточка проезда (адрес крупно, график, маршрут) и контакты -->
 
@@ -2205,6 +2211,7 @@ a.contacts__value {
             Построить маршрут в 2ГИС
           </a>
 
+
           <a class="btn btn--ghost" href="https://yandex.ru/maps/?text=%D0%A1%D1%83%D1%80%D0%B3%D1%83%D1%82%2C%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%20%D0%9A%D1%80%D1%8B%D0%BB%D0%BE%D0%B2%D0%B0%2C%2061%20%D1%81%D1%824" target="_blank" rel="noopener nofollow">
             <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-map"/></svg>
             Открыть в Яндекс Картах
@@ -2212,6 +2219,7 @@ a.contacts__value {
 
         </div>
       </div>
+
 
       <address class="card contacts reveal">
 
@@ -2222,6 +2230,8 @@ a.contacts__value {
             <a class="contacts__value" href="tel:+79128199988">+7 (912) 819-99-88</a>
           </span>
         </p>
+
+
 
         <p class="contacts__row">
           <svg class="icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pin"/></svg>
@@ -2235,6 +2245,7 @@ a.contacts__value {
 
       </div>
     </section>
+
 
   </main>
 
@@ -2284,6 +2295,8 @@ a.contacts__value {
     </a>
 
   </nav>
+
+
 
   <!-- Мини-скрипт без библиотек: статус «открыто сейчас», появление карточек,
        отклик главной кнопки, текст заявки в мессенджер. Без него страница работает целиком. -->
